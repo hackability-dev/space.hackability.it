@@ -1,10 +1,21 @@
 import * as trpc from "@trpc/server";
+import { inferAsyncReturnType, TRPCError } from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
 import { db } from "services/db";
 import { z } from "zod";
+import { getSession } from "next-auth/react";
 
 const appRouter = trpc
-  .router()
+  .router<Context>()
+  .query("auth", {
+    input: z.object({}),
+    async resolve({ input, ctx }) {
+      if (ctx.user) {
+        return { res: "ok" };
+      }
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    },
+  })
   .query("hello", {
     input: z.object({
       name: z.string(),
@@ -30,4 +41,22 @@ export type AppRouter = typeof appRouter;
 
 export default trpcNext.createNextApiHandler({
   router: appRouter,
+  createContext,
 });
+
+export async function createContext({
+  req,
+  res,
+}: trpcNext.CreateNextContextOptions) {
+  async function getUserFromHeader() {
+    const session = await getSession({ req });
+    console.log({ session });
+    return session;
+  }
+  const user = await getUserFromHeader();
+
+  return {
+    user,
+  };
+}
+type Context = inferAsyncReturnType<typeof createContext>;
