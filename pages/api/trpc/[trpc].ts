@@ -50,7 +50,6 @@ export async function createContext({
 }: trpcNext.CreateNextContextOptions) {
   async function getUserFromHeader() {
     const session = await getSession({ req });
-    console.log({ session });
     return session;
   }
   const user = await getUserFromHeader();

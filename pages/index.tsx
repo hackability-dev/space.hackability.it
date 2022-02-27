@@ -9,7 +9,6 @@ import { trpc } from "utils/trpc";
 
 const HomePage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   const { data } = trpc.useQuery(["auth", {}]);
-  console.log({ data });
   return (
     <PageLayout>
       <Nav />
@@ -31,26 +30,30 @@ const PageLayout = styled.div`
 
 const Main = ({ projects }: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
-    <main className="h-full bg-blue-500">
-      <ProjectsList className="p-10 max-w-7xl m-auto">
-        {projects.map((project) => (
-          <ProjectPreview
-            key={project.id}
-            project={project}
-            description={project.description}
-            name={project.name}
-          />
-        ))}
-      </ProjectsList>
+    <main className="h-full">
+      <div className="bg-white">
+        <p className="max-w-7xl my-12 mx-auto text-center">
+          Questa è la piattaforma che raccoglie la documentazione dei progetti
+          nati in co-progettazione secondo il format Hackability. Rilasciamo
+          tutto in Open Source e in Creative Commons, perchè vogliamo che ogni
+          progetto possa migliorarsi e migliorare la vita delle persone!
+        </p>
+      </div>
+      <div className="bg-gray-100">
+        <div className="p-10 max-w-7xl m-auto grid grid-cols-3 gap-6">
+          {projects.map((project) => (
+            <ProjectPreview
+              key={project.id}
+              project={project}
+              description={project.description}
+              name={project.name}
+            />
+          ))}
+        </div>
+      </div>
     </main>
   );
 };
-
-const ProjectsList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-`;
 
 export const getStaticProps = async () => {
   const projects = await db.project.findMany({

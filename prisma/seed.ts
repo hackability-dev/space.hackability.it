@@ -1,5 +1,4 @@
-import { SecurePassword } from "blitz"
-import db from "./index"
+import db from "./index";
 
 const data = [
   {
@@ -50,7 +49,8 @@ const data = [
   },
   {
     body: "",
-    description: "Il primo tavolino pieghevole per carrozzina. Tutto stampato in 3D.",
+    description:
+      "Il primo tavolino pieghevole per carrozzina. Tutto stampato in 3D.",
     name: "Tournée",
     previewImage:
       "https://www.googleapis.com/download/storage/v1/b/hackability-web.appspot.com/o/projects%2F6Y0vcf2oyNTmP0ibUiN8%2Fimages%2FkRy2RDw9n0Y4xh72yIcQ%2FIMG_4062_C@thumbnail.jpeg?generation=1557913798997873&alt=media",
@@ -317,7 +317,8 @@ const data = [
   },
   {
     body: "",
-    description: "Un economico ingranditore portatile per la lettura e la scrittura",
+    description:
+      "Un economico ingranditore portatile per la lettura e la scrittura",
     name: "Zoomografo",
     previewImage:
       "https://www.googleapis.com/download/storage/v1/b/hackability-web.appspot.com/o/projects%2Fs9EQNs7phu1CcANdOftw%2Fimages%2Fo716UwEZNWCy9kb68OVk%2F03@thumbnail.jpg?generation=1558614446671050&alt=media",
@@ -326,7 +327,8 @@ const data = [
   },
   {
     body: "",
-    description: "La prima mappa 3D dell'Italia interattiva per bambini ciechi.",
+    description:
+      "La prima mappa 3D dell'Italia interattiva per bambini ciechi.",
     name: "Hackability Geo",
     previewImage:
       "https://www.googleapis.com/download/storage/v1/b/hackability-web.appspot.com/o/projects%2Fth4YC0sUFFt21CQl8oqk%2Fimages%2F9yOzoSigrSHgKq83F9Ph%2FIMG_0145@thumbnail.jpg?generation=1558607917684617&alt=media",
@@ -364,18 +366,11 @@ const data = [
       "Il progetto è stato pensato per Maria, una donna che ha perso la funzionalità dell'arto superiore sinistro. \n" +
       "Questo tagliere le consente di sbucciare, tagliare e affettare con una mano sola tutti gli alimenti.",
   },
-]
+];
 const seed = async () => {
-  const hashedPassword = await SecurePassword.hash("admin".trim())
-  await db.user.create({
-    data: {
-      email: "admin@admin.com",
-      hashedPassword,
-    },
-  })
-  await db.project.createMany({ data })
-  console.log("done")
-}
+  await db.project.createMany({ data });
+  console.log("done");
+};
 
-seed()
-export default seed
+seed();
+export default seed;

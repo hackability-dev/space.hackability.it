@@ -19,6 +19,7 @@ const googleConfig = getConfigs({
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: googleConfig.clientId,
