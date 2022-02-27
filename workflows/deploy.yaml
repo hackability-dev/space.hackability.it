@@ -1,0 +1,60 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get Vars
+        id: get_vars
+        run: |
+          echo "::set-output name=ts::$(date +%s)"
+          echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+          echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
+      - name: Docker meta
+        id: docker_meta
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tag-sha: true
+          tag-semver: |
+            {{version}}
+            {{major}}.{{minor}}
+          tag-custom: |
+            ${{steps.get_vars.outputs.branch}}-${{steps.get_vars.outputs.sha}}-${{ steps.get_vars.outputs.ts }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          network: host
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          build-args: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+    services:
+      db:
+        image: ghcr.io/ludusrusso/kubectl-with-env-config:958062ab64ccfa815aa2f931c03f72a2a670232a
+        env:
+          KUBECONFIG: "${{ secrets.KUBECONFIG }}"
+          NAMESPACE: "${{ secrets.NAMESPACE }}"
+          POD: "${{ secrets.POD }}"
+          PORTS: 5432:5432
+        ports:
+          - 5432:5432

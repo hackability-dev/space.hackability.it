@@ -1,7 +1,7 @@
 import styled from "@emotion/styled";
+import { ProjectPreview } from "components/project-preview";
 import Layout from "core/layouts/Layout";
 import { InferGetStaticPropsType } from "next";
-import { ProjectPreview } from "projects/components/ProjectPreview";
 import { db } from "services/db";
 import { Footer } from "ui/footer";
 import { Nav } from "ui/nav";
