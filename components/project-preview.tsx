@@ -12,7 +12,7 @@ export const ProjectPreview = ({
   description,
 }: ProjectPreviewProps) => (
   <div>
-    <div className="flex flex-col rounded shadow-lg overflow-hidden bg-white">
+    <div className="flex flex-col rounded hover:ring-2 shadow-lg hover:shadow-xl transition ease-in-out overflow-hidden bg-white">
       <img
         className="h-64 w-full object-cover"
         src="https://www.googleapis.com/download/storage/v1/b/hackability-web.appspot.com/o/projects%2F0XUTQSgCkQptIfaOI54P%2Fimages%2FByjHCSG5aG3jUjHxOMvW%2FIMG_7438-min@medium.jpg?generation=1563725929822580&alt=media"
@@ -24,7 +24,7 @@ export const ProjectPreview = ({
             Category
           </span>
         </div>
-        <h3 className="font-bold text-gray-800 font-lg mt-2">{name}</h3>
+        <h3 className="font-semibold text-gray-800 text-lg mt-2">{name}</h3>
         <p className="text-gray-600 mt-1">{description}</p>
       </div>
     </div>
