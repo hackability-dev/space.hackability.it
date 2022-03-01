@@ -26,7 +26,7 @@ const Main = ({ projects }: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
     <main className="h-full">
       <div className="bg-white">
-        <p className="max-w-7xl my-12 mx-auto text-center">
+        <p className="max-w-7xl my-12 px-10 mx-auto text-center text-xl text-gray-500">
           Questa è la piattaforma che raccoglie la documentazione dei progetti
           nati in co-progettazione secondo il format Hackability. Rilasciamo
           tutto in Open Source e in Creative Commons, perchè vogliamo che ogni

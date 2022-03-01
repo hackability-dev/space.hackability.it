@@ -1,24 +1,23 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Fragment } from "react";
-import { Disclosure, Menu, Popover, Transition } from "@headlessui/react";
+import { Popover, Transition } from "@headlessui/react";
 import {
-  BellIcon,
-  MenuIcon,
-  XIcon,
-  SpeakerphoneIcon,
-  PlayIcon,
-  PhoneIcon,
   BookmarkAltIcon,
   CalendarIcon,
   ChartBarIcon,
+  ChevronDownIcon,
   CursorClickIcon,
+  InformationCircleIcon,
+  MenuIcon,
+  PhoneIcon,
+  PlayIcon,
   RefreshIcon,
   ShieldCheckIcon,
   SupportIcon,
   ViewGridIcon,
-  ChevronDownIcon,
+  XIcon,
 } from "@heroicons/react/outline";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { Fragment } from "react";
 import { Logo } from "./logo";
 
 const navigation = [
@@ -109,9 +108,16 @@ export function Nav() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center py-6 md:justify-start md:space-x-10">
             <div className="flex justify-start lg:w-0 lg:flex-1">
-              <a href="#">
-                <span className="sr-only">Hackabiliy</span>
-                <Logo className="h-12 w-12" />
+              <a href="#" className="flex items-center align-middle">
+                <Logo className="h-12 w-12 mr-4" />
+                <div className="flex flex-col">
+                  <span className="uppercase text-sm font-semibold">
+                    Hackability
+                  </span>
+                  <span className="uppercase text-sm text-green-600">
+                    Space
+                  </span>
+                </div>
               </a>
             </div>
             <div className="-mr-2 -my-2 md:hidden">
@@ -331,17 +337,30 @@ const Banner = () => {
         <div className="flex items-center justify-between flex-wrap">
           <div className="w-0 flex-1 flex items-center">
             <span className="flex p-2 rounded-lg bg-cyan-800">
-              <SpeakerphoneIcon
+              <InformationCircleIcon
                 className="h-6 w-6 text-white"
                 aria-hidden="true"
               />
             </span>
             <p className="ml-3 font-medium text-white truncate text-sm">
-              <span className="md:hidden">We announced a new product!</span>
+              <span className="md:hidden">
+                App in beta. Segnalare problemi su{" "}
+                <a
+                  className="underline underline-offset-2"
+                  href="https://github.com/hackability-dev/space.hackability.it/issues"
+                >
+                  Github
+                </a>
+              </span>
               <span className="hidden md:inline">
-                Questa applicazione e in fase di sviluppo e potrebbe non
-                funzionare correttamente! Per suggerimenti e informazioni i
-                nviare una mail a it@hackability.it
+                Questa applicazione e in fase di sviluppo (beta)! Per
+                suggerimenti e informazioni usare{" "}
+                <a
+                  className="underline underline-offset-2"
+                  href="https://github.com/hackability-dev/space.hackability.it/issues"
+                >
+                  Github
+                </a>
               </span>
             </p>
           </div>
