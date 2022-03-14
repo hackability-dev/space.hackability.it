@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import { ProjectPreview } from "components/project-preview";
 import Layout from "core/layouts/Layout";
 import { InferGetStaticPropsType } from "next";

@@ -26,4 +26,15 @@ export default NextAuth({
       clientSecret: googleConfig.clientSecret,
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
+  callbacks: {
+    session: ({ session, token, user }) => {
+      return session;
+    },
+    async jwt({ token, user, account, profile, isNewUser }) {
+      return token;
+    },
+  },
 });
