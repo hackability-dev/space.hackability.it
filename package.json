@@ -31,7 +31,7 @@
     "react-final-form": "^6.5.8",
     "react-query": "^3.34.16",
     "superjson": "^1.8.0",
-    "zod": "^3.13.4"
+    "zod": "^3.14.4"
   },
   "devDependencies": {
     "@types/react": "^17.0.43",
