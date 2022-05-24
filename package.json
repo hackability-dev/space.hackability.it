@@ -29,7 +29,7 @@
     "react-dom": "^18.1.0",
     "react-final-form": "^6.5.8",
     "react-query": "^3.39.0",
-    "superjson": "^1.8.0",
+    "superjson": "^1.9.1",
     "zod": "^3.14.4"
   },
   "devDependencies": {
