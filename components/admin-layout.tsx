@@ -13,8 +13,8 @@ import {
 } from "@heroicons/react/outline";
 import { SearchIcon } from "@heroicons/react/solid";
 import { classNames } from "utils/class-names";
-import { signOut, useSession } from "next-auth/react";
 import { Logo } from "ui/logo";
+import { useUser } from "@auth0/nextjs-auth0";
 
 const navigation = [
   { name: "Dashboard", href: "#", icon: HomeIcon, current: true },
@@ -40,12 +40,15 @@ interface NavAction {
 const userNavigation: (NavLink | NavAction)[] = [
   { type: "link", name: "Your Profile", href: "#" },
   { type: "link", name: "Settings", href: "#" },
-  { type: "action", name: "Sign out", action: () => signOut() },
+  // { type: "action", name: "Sign out", action: () => signOut() },
 ];
 
 export const AdminLayout: FC = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const session = useSession();
+  const { user, error, isLoading } = useUser();
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>{error.message}</div>;
 
   return (
     <>
@@ -222,7 +225,7 @@ export const AdminLayout: FC = ({ children }) => {
                         <span className="sr-only">Open user menu</span>
                         <img
                           className="h-8 w-8 rounded-full"
-                          src={session.data?.user?.image!}
+                          src={user?.picture!}
                           alt=""
                         />
                       </Menu.Button>

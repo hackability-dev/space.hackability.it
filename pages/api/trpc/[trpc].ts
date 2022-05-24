@@ -1,9 +1,9 @@
+import { getSession } from "@auth0/nextjs-auth0";
 import * as trpc from "@trpc/server";
 import { inferAsyncReturnType, TRPCError } from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
 import { db } from "services/db";
 import { z } from "zod";
-import { getSession } from "next-auth/react";
 
 const appRouter = trpc
   .router<Context>()
@@ -49,7 +49,7 @@ export async function createContext({
   res,
 }: trpcNext.CreateNextContextOptions) {
   async function getUserFromHeader() {
-    const session = await getSession({ req });
+    const session = getSession(req, res);
     return session;
   }
   const user = await getUserFromHeader();

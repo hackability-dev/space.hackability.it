@@ -1,13 +1,13 @@
 import { withTRPC } from "@trpc/next";
 import "../styles/globals.css";
 import { AppRouter } from "./api/trpc/[trpc]";
-import { SessionProvider } from "next-auth/react";
+import { UserProvider } from "@auth0/nextjs-auth0";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: any) {
   return (
-    <SessionProvider session={session}>
+    <UserProvider>
       <Component {...pageProps} />
-    </SessionProvider>
+    </UserProvider>
   );
 }
 
