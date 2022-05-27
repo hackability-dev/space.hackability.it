@@ -1,0 +1,259 @@
+import deepEqual from "fast-deep-equal";
+import dynamic from "next/dynamic";
+import { useCallback } from "react";
+import { Field, Form } from "react-final-form";
+import { ProjectSchema } from "src/projects/schema";
+import { cloudinaryUploadImage } from "utils/cloudinary";
+import { trpc } from "utils/trpc";
+import { validateZodSchema } from "utils/validate-zod";
+import { z } from "zod";
+import { CharCounter, ErrOrDescription } from "./forms-utils";
+import { FeatureImageField } from "./image";
+const EditorField = dynamic(() => import("./editor"), { ssr: false });
+
+type ProjectValue = z.TypeOf<typeof ProjectSchema>;
+
+interface ProjectFormProps {
+  initialValues?: Partial<ProjectValue>;
+  onSubmit: (values: ProjectValue) => void;
+}
+
+export const ProjectForm = ({ onSubmit, initialValues }: ProjectFormProps) => {
+  const { mutateAsync: getCloudinarySecret } = trpc.useMutation([
+    "author.cloudinaryUploadSignature",
+  ]);
+
+  const uploadImage = useCallback(
+    (file: Blob) => {
+      return cloudinaryUploadImage(file, () => getCloudinarySecret());
+    },
+    [getCloudinarySecret]
+  );
+
+  return (
+    <Form<z.TypeOf<typeof ProjectSchema>>
+      onSubmit={onSubmit}
+      validate={validateZodSchema(ProjectSchema)}
+      initialValues={initialValues}
+      initialValuesEqual={deepEqual}
+      render={({ handleSubmit, errors, valid }) => (
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-8 divide-y divide-gray-200"
+        >
+          <div className="space-y-8 divide-y divide-gray-200">
+            <div>
+              <div>
+                <h3 className="text-lg mt-6 leading-6 font-medium text-gray-900">
+                  Informazioni generali sul progetto
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Use a permanent address where you can receive mail.
+                </p>
+              </div>
+              <div className="mt-6 grid grid-cols-1 gap-y-6">
+                <Field<string>
+                  name="name"
+                  id="name"
+                  render={({ input, meta }) => (
+                    <div className="sm:col-span-4">
+                      <label
+                        htmlFor="name"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Nome del progetto
+                      </label>
+                      <div className="mt-1 flex rounded-md shadow-sm">
+                        <input
+                          {...input}
+                          type="text"
+                          autoComplete="name"
+                          className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0  rounded-md sm:text-sm border-gray-300"
+                        />
+                      </div>
+                      <div className="flex justify-between">
+                        <ErrOrDescription
+                          meta={meta}
+                          description="Titolo del progetto"
+                        />
+                        <CharCounter max={50} current={input.value.length} />
+                      </div>
+                    </div>
+                  )}
+                ></Field>
+                <Field<string>
+                  id="description"
+                  name="description"
+                  render={({ input, meta }) => (
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="description"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Descrizione del progetto
+                      </label>
+                      <div className="mt-1">
+                        <textarea
+                          {...input}
+                          rows={3}
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div className="flex justify-between">
+                        <ErrOrDescription
+                          meta={meta}
+                          description=" Scrivi una breve presentazione del tuo progetto"
+                        />
+                        <CharCounter max={200} current={input.value.length} />
+                      </div>
+                    </div>
+                  )}
+                />
+
+                <div className="sm:col-span-6">
+                  <label
+                    htmlFor="previewImage"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Immagine di copertina del progetto
+                  </label>
+
+                  <FeatureImageField
+                    name="previewImage"
+                    uploadImage={uploadImage}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-8">
+              <div>
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Perchè il tuo progetto esiste?
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Rispondi a questo domande per dare informazioni agli utenti
+                  del perchè del tuo progetto.
+                </p>
+              </div>
+              <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <Field<string>
+                  id="why"
+                  name="why"
+                  render={({ input, meta }) => (
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="why"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Perchè hai sviluppato questo progetto?
+                      </label>
+                      <div className="mt-1">
+                        <textarea
+                          {...input}
+                          rows={3}
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div className="flex justify-between">
+                        <ErrOrDescription
+                          meta={meta}
+                          description="Descrivi il bisgno"
+                        />
+                        <CharCounter max={200} current={input.value.length} />
+                      </div>
+                    </div>
+                  )}
+                />
+                <Field<string>
+                  id="what"
+                  name="what"
+                  render={({ input, meta }) => (
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="what"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Cosa fa?
+                      </label>
+                      <div className="mt-1">
+                        <textarea
+                          {...input}
+                          rows={3}
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div className="flex justify-between">
+                        <ErrOrDescription
+                          meta={meta}
+                          description="Descrivi come il bisogno viene risolto"
+                        />
+                        <CharCounter max={200} current={input.value.length} />
+                      </div>
+                    </div>
+                  )}
+                />
+
+                <Field<string>
+                  id="how"
+                  name="how"
+                  render={({ input, meta }) => (
+                    <div className="sm:col-span-6">
+                      <label
+                        htmlFor="how"
+                        className="block text-sm font-medium text-gray-700"
+                      >
+                        Descrizione del progetto
+                      </label>
+                      <div className="mt-1">
+                        <textarea
+                          {...input}
+                          rows={3}
+                          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+                        />
+                      </div>
+                      <div className="flex justify-between">
+                        <ErrOrDescription
+                          meta={meta}
+                          description="diy, hacking, arduino, 3D printed, casted, etc."
+                        />
+                        <CharCounter max={200} current={input.value.length} />
+                      </div>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="pt-10">
+              <div>
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Descrizione del progetto
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Descrivi dettagliamente il tuo progetto inserendo immagini e
+                  video
+                </p>
+              </div>
+              <div className="mt-4 h-80">
+                <EditorField name="body" uploadImage={uploadImage} />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-5">
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={!valid}
+                className="ml-3 disabled:bg-indigo-400 disabled:cursor-not-allowed inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Salva
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
+    />
+  );
+};

@@ -1,7 +1,8 @@
-import { withTRPC } from "@trpc/next";
-import "../styles/globals.css";
-import { AppRouter } from "./api/trpc/[trpc]";
 import { UserProvider } from "@auth0/nextjs-auth0";
+import { withTRPC } from "@trpc/next";
+import { AppRouter } from "src/api/mod";
+import "../styles/globals.css";
+import superjson from "superjson";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: any) {
   return (
@@ -16,6 +17,7 @@ export default withTRPC<AppRouter>({
     const url = "/api/trpc";
     return {
       url,
+      transformer: superjson,
     };
   },
   ssr: false,

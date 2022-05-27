@@ -1,4 +1,5 @@
 /* This example requires Tailwind CSS v2.0+ */
+import { useUser } from "@auth0/nextjs-auth0";
 import { Popover, Transition } from "@headlessui/react";
 import {
   BookmarkAltIcon,
@@ -101,7 +102,7 @@ function classNames(...classes: string[]) {
 }
 
 export function Nav() {
-  // const { data: session } = useSession();
+  const { user, isLoading } = useUser();
   return (
     <div>
       <Popover className="relative bg-white shadow">
@@ -216,11 +217,25 @@ export function Nav() {
               </a>
             </Popover.Group>
             <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
-              <Link href="/api/auth/login">
-                <a className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
-                  Sign in
-                </a>
-              </Link>
+              {user ? (
+                <div>
+                  <Link href="/admin">
+                    <a>
+                      <img
+                        className="h-10 w-10 rounded-full"
+                        src={user.picture!}
+                        alt={user.name || "a user"}
+                      />
+                    </a>
+                  </Link>
+                </div>
+              ) : (
+                <Link href="/api/auth/login">
+                  <a className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
+                    Sign in
+                  </a>
+                </Link>
+              )}
             </div>
           </div>
         </div>

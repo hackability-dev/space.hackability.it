@@ -22,7 +22,6 @@ async function main() {
       why: data.why || "",
     };
   });
-  console.log(p);
   await db.project.createMany({
     data: p,
   });

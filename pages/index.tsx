@@ -7,7 +7,6 @@ import { Nav } from "ui/nav";
 import { trpc } from "utils/trpc";
 
 const HomePage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
-  const { data } = trpc.useQuery(["auth", {}]);
   return (
     <>
       <Nav />

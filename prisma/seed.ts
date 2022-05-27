@@ -368,7 +368,7 @@ const data = [
   },
 ];
 const seed = async () => {
-  await db.project.createMany({ data });
+  // await db.project.createMany({ data });
   console.log("done");
 };
 
