@@ -1,7 +1,8 @@
 import deepEqual from "fast-deep-equal";
 import dynamic from "next/dynamic";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Field, Form } from "react-final-form";
+import { FieldArray } from "react-final-form-arrays";
 import { ProjectSchema } from "src/projects/schema";
 import { cloudinaryUploadImage } from "utils/cloudinary";
 import { trpc } from "utils/trpc";
@@ -9,19 +10,23 @@ import { validateZodSchema } from "utils/validate-zod";
 import { z } from "zod";
 import { CharCounter, ErrOrDescription } from "./forms-utils";
 import { FeatureImageField } from "./image";
+import arrayMutators from "final-form-arrays";
+
 const EditorField = dynamic(() => import("./editor"), { ssr: false });
 
 type ProjectValue = z.TypeOf<typeof ProjectSchema>;
 
 interface ProjectFormProps {
   initialValues?: Partial<ProjectValue>;
-  onSubmit: (values: ProjectValue) => void;
+  onSubmit: (values: ProjectValue) => Promise<void>;
 }
 
 export const ProjectForm = ({ onSubmit, initialValues }: ProjectFormProps) => {
   const { mutateAsync: getCloudinarySecret } = trpc.useMutation([
     "author.cloudinaryUploadSignature",
   ]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const uploadImage = useCallback(
     (file: Blob) => {
@@ -32,11 +37,22 @@ export const ProjectForm = ({ onSubmit, initialValues }: ProjectFormProps) => {
 
   return (
     <Form<z.TypeOf<typeof ProjectSchema>>
-      onSubmit={onSubmit}
+      onSubmit={async (value) => {
+        setIsSubmitting(true);
+        try {
+          await onSubmit(value);
+        } catch (e) {
+          console.error(e);
+        }
+        setIsSubmitting(false);
+      }}
       validate={validateZodSchema(ProjectSchema)}
       initialValues={initialValues}
       initialValuesEqual={deepEqual}
-      render={({ handleSubmit, errors, valid }) => (
+      mutators={{
+        ...arrayMutators,
+      }}
+      render={({ handleSubmit, errors, valid, values }) => (
         <form
           onSubmit={handleSubmit}
           className="space-y-8 divide-y divide-gray-200"
@@ -239,21 +255,153 @@ export const ProjectForm = ({ onSubmit, initialValues }: ProjectFormProps) => {
                 <EditorField name="body" uploadImage={uploadImage} />
               </div>
             </div>
+
+            <div className="pt-10">
+              <div>
+                <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  Come riprodurre il progetto?
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Dividi il progetto in passi semplici! E descrivi i singoli
+                  passi
+                </p>
+              </div>
+              <FieldArray name="buildSteps">
+                {({ fields }) => (
+                  <div>
+                    {fields.map((name, index) => (
+                      <div className="mt-4" key={index}>
+                        <StepForm
+                          name={name}
+                          remove={() => fields.remove(index)}
+                          uploadImage={uploadImage}
+                        />
+                      </div>
+                    ))}
+
+                    <div className="mt-2 flex justify-end">
+                      <button
+                        type="button"
+                        className="px-2 py-1 bg-indigo-600 hover:bg-indigo-800 text-sm text-white rounded "
+                        onClick={() => fields.push({})}
+                      >
+                        Aggiungi
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </FieldArray>
+            </div>
           </div>
 
           <div className="pt-5">
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={!valid}
+                disabled={!valid || isSubmitting}
                 className="ml-3 disabled:bg-indigo-400 disabled:cursor-not-allowed inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
-                Salva
+                {isSubmitting ? "Sto salvando..." : "Salva"}
               </button>
             </div>
           </div>
         </form>
       )}
     />
+  );
+};
+
+interface StepFormProps {
+  name: string;
+  uploadImage: (file: Blob) => Promise<string>;
+  remove: () => void;
+}
+
+const StepForm = ({ name, uploadImage, remove }: StepFormProps) => {
+  return (
+    <div className="p-4 bg-gray-200 shadow-lg rounded-lg">
+      <Field<string>
+        name={`${name}.title`}
+        id={`${name}.title`}
+        render={({ input, meta }) => (
+          <div className="sm:col-span-4">
+            <label
+              htmlFor={`${name}.title`}
+              className="block text-sm font-medium text-gray-700"
+            >
+              Titolo
+            </label>
+            <div className="mt-1 flex rounded-md shadow-sm">
+              <input
+                {...input}
+                type="text"
+                autoComplete="name"
+                className="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0  rounded-md sm:text-sm border-gray-300"
+              />
+            </div>
+            <div className="flex justify-between">
+              <ErrOrDescription
+                meta={meta}
+                description="Dai un titolo al passo"
+              />
+              <CharCounter max={50} current={input.value.length} />
+            </div>
+          </div>
+        )}
+      ></Field>
+      <div className="sm:col-span-6">
+        <label
+          htmlFor="previewImage"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Immagine di presentazione dello step
+        </label>
+
+        <FeatureImageField
+          name={`${name}.previewImage`}
+          uploadImage={uploadImage}
+        />
+      </div>
+      <Field<string>
+        id={`${name}.description`}
+        name={`${name}.description`}
+        render={({ input, meta }) => (
+          <div className="sm:col-span-6">
+            <label
+              htmlFor={`${name}.description`}
+              className="block text-sm font-medium text-gray-700"
+            >
+              Info
+            </label>
+            <div className="mt-1">
+              <textarea
+                {...input}
+                rows={3}
+                className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+              />
+            </div>
+            <div className="flex justify-between">
+              <ErrOrDescription
+                meta={meta}
+                description="Descrivi brevemente lo step"
+              />
+              <CharCounter max={200} current={input.value.length} />
+            </div>
+          </div>
+        )}
+      />
+      <div className="mt-4 h-80">
+        <EditorField name={`${name}.body`} uploadImage={uploadImage} />
+      </div>
+      <div className="mt-2 flex justify-end">
+        <button
+          type="button"
+          className="px-2 py-1 bg-red-600 hover:bg-red-800 text-sm text-white rounded "
+          onClick={remove}
+        >
+          Cancella Passo
+        </button>
+      </div>
+    </div>
   );
 };

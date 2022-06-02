@@ -12,6 +12,7 @@ export const ProjectSchema = z.object({
   buildSteps: z
     .object({
       title: z.string().max(50),
+      previewImage: z.string(),
       description: z.string().max(200),
       body: z.string(),
     })

@@ -26,7 +26,10 @@ const EditProjectPage = () => {
 
   return (
     <AdminLayout>
-      <h1 className=""> Create a New Project </h1>
+      <h1 className="text-4xl font-semibold text-gray-600">
+        Modifica il tuo progetto
+      </h1>
+      <p>{project.body}</p>
       <ProjectForm
         initialValues={project as any}
         onSubmit={async (project) => {

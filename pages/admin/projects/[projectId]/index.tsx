@@ -1,5 +1,5 @@
 import { AdminLayout } from "components/admin-layout";
-import { ProjectForm } from "components/forms/project";
+import { ProjectView } from "components/projects/project-view";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { trpc } from "utils/trpc";
@@ -31,6 +31,7 @@ const ProjectPage = () => {
       <Link href={`${projectId}/edit`}>
         <a> Modifica progetto </a>
       </Link>
+      <ProjectView project={project} />
     </AdminLayout>
   );
 };

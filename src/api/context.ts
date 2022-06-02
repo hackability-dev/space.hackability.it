@@ -1,4 +1,4 @@
-import { getSession } from "@auth0/nextjs-auth0";
+import { getSession, getAccessToken } from "@auth0/nextjs-auth0";
 import { PrismaClient } from "@prisma/client";
 import * as trpc from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
@@ -15,6 +15,8 @@ export const createContext = async ({
   res,
 }: trpcNext.CreateNextContextOptions) => {
   const session = getSession(req, res);
+  const accessToken = getAccessToken(req, res);
+  console.log({ roles: accessToken });
   return {
     req,
     res,

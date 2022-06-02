@@ -8,7 +8,7 @@ const firestore = admin.firestore();
 async function main() {
   const res = await firestore
     .collection("projects")
-    .limit(100)
+    .limit(0)
     .where("completed", "==", true)
     .get();
   const p = res.docs.map((d) => {
@@ -22,9 +22,9 @@ async function main() {
       why: data.why || "",
     };
   });
-  await db.project.createMany({
-    data: p,
-  });
+  // await db.project.createMany({
+  //   data: p,
+  // });
 }
 
 main().then();

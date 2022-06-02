@@ -1,10 +1,10 @@
 import { ProjectPreview } from "components/project-preview";
 import Layout from "core/layouts/Layout";
 import { InferGetStaticPropsType } from "next";
+import Link from "next/link";
 import { db } from "services/db";
 import { Footer } from "ui/footer";
 import { Nav } from "ui/nav";
-import { trpc } from "utils/trpc";
 
 const HomePage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
@@ -34,12 +34,15 @@ const Main = ({ projects }: InferGetStaticPropsType<typeof getStaticProps>) => {
       <div className="bg-gray-100">
         <div className="p-10 max-w-7xl m-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <ProjectPreview
-              key={project.id}
-              project={project}
-              description={project.description}
-              name={project.name}
-            />
+            <Link key={project.id} href={`/projects/${project.id}`}>
+              <a>
+                <ProjectPreview
+                  project={project}
+                  description={project.description}
+                  name={project.name}
+                />
+              </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -53,7 +56,7 @@ export const getStaticProps = async () => {
       updatedAt: "desc",
     },
     skip: 0,
-    take: 18,
+    take: 180,
   });
 
   return {

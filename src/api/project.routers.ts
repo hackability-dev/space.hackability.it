@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createRouter } from "./router";
 import { CreateProjectSchema, ProjectSchema } from "src/projects/schema";
 import { CreateProjectForm } from "components/forms/create-project";
+import { getRenderedProject } from "utils/getRenderedProject";
 
 export const projectsRouter = createRouter()
   .middleware(async ({ ctx, next }) => {
@@ -62,6 +63,8 @@ export const projectsRouter = createRouter()
           author: true,
           description: true,
           name: true,
+          previewImage: true,
+          draft: true,
         },
         ...input,
       });
@@ -72,12 +75,13 @@ export const projectsRouter = createRouter()
       id: z.string(),
     }),
     async resolve({ ctx, input }) {
-      return ctx.db.project.findFirst({
-        where: {
-          author: ctx.user.email,
-          id: input.id,
-        },
-      });
+      const project = await getRenderedProject(input.id, ctx.db);
+      if (!project || project.author !== ctx.user.email) {
+        return null;
+      }
+      return {
+        ...project,
+      };
     },
   })
   .mutation("saveProject", {
@@ -125,6 +129,26 @@ export const projectsRouter = createRouter()
           author: ctx.user.email,
         },
       });
+    },
+  })
+  .query("getUserInfo", {
+    async resolve({ ctx }) {
+      const latestProjects = await ctx.db.project.findMany({
+        take: 9,
+        where: {
+          author: ctx.user.email,
+        },
+      });
+      const publishedProjectsCount = await ctx.db.project.count({
+        where: {
+          published: true,
+          author: ctx.user.email,
+        },
+      });
+      return {
+        latestProjects,
+        publishedProjectsCount,
+      };
     },
   })
   // .mutation("publishPost", {

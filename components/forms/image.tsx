@@ -63,6 +63,7 @@ export const FeatureImageField = ({
                       name={props.input.name}
                       type="file"
                       className="sr-only"
+                      accept="image/*"
                       onChange={(e) => upload(e, props.input.onChange)}
                     />
                   </label>
