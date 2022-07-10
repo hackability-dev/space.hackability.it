@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+const StepSchema = z.object({
+  title: z.string().max(50),
+  previewImage: z.string(),
+  description: z.string().max(200),
+  body: z.string(),
+});
+
 export const ProjectSchema = z.object({
   name: z.string().max(50),
   description: z.string().max(200),
@@ -9,17 +16,11 @@ export const ProjectSchema = z.object({
   how: z.string().max(200),
   body: z.string(),
   previewImage: z.string(),
-  buildSteps: z
-    .object({
-      title: z.string().max(50),
-      previewImage: z.string(),
-      description: z.string().max(200),
-      body: z.string(),
-    })
-    .array()
-    .default([]),
+  buildSteps: StepSchema.array().default([]),
 });
 
 export const CreateProjectSchema = z.object({
   name: z.string().max(50),
 });
+
+export type ProjectStep = z.infer<typeof StepSchema>;

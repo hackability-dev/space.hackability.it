@@ -137,6 +137,34 @@ export const ProjectView = ({ project }: ProjectViewProps) => {
           <MDXRemote {...project.renderedBody} components={{}} />
         </div>
       </div>
+
+      <div className="relative px-4 sm:px-6 lg:px-8 mt-10">
+        {project.steps.map((step, idx) => (
+          <ProjectStepView step={step} key={idx} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const ProjectStepView = ({
+  step,
+}: {
+  step: RenderedProject["steps"][number];
+}) => {
+  return (
+    <div className="text-lg max-w-prose mx-auto mt-2">
+      <div className="text-lg max-w-prose mx-auto">
+        <h2 className="mt-2 block text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+          <span>{step.title}</span>
+        </h2>
+        <p className="mt-8 text-xl text-gray-500 leading-8">
+          {step.description}
+        </p>
+        <div className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
+          <MDXRemote {...step.body} components={{}} />
+        </div>
+      </div>
     </div>
   );
 };

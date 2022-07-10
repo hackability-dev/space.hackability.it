@@ -9,7 +9,7 @@ const ProjectsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data, isLoading, error } = trpc.useQuery([
     "author.getMyProjects",
-    { skip: 0, take: 20 },
+    { skip: 0, take: 50 },
   ]);
 
   if (isLoading) {

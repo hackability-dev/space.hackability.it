@@ -117,6 +117,20 @@ export function Footer() {
         <p className="mt-8 text-center text-base text-gray-400">
           &copy; 2016 - {new Date().getFullYear()} Hackability
         </p>
+        <p className="mt-8 text-center text-base text-gray-400">
+          Build with ❤️ by{" "}
+          <a target="_blank" rel="noreferrer" href="https://ludusrusso.dev">
+            Ludovico
+          </a>{" "}
+          on{" "}
+          <a
+            target="_blank"
+            rel="noreferrer"
+            href="https://github.com/hackability-dev/space.hackability.it"
+          >
+            GitHub
+          </a>
+        </p>
       </div>
     </footer>
   );
