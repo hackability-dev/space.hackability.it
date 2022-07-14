@@ -5,14 +5,13 @@ import { useRouter } from "next/router";
 import { trpc } from "utils/trpc";
 
 const ProjectPage = () => {
-  const { mutateAsync: saveProject } = trpc.useMutation(["author.saveProject"]);
   const router = useRouter();
   const projectId = router.query.projectId as string;
   const {
     data: project,
     isLoading,
     error,
-  } = trpc.useQuery(["author.getMyProject", { id: projectId }]);
+  } = trpc.useQuery(["author.project.renderProject", { projectId }]);
   if (isLoading) {
     return <p>loading ...</p>;
   }

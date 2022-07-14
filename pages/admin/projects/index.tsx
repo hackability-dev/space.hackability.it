@@ -7,10 +7,19 @@ import { trpc } from "utils/trpc";
 
 const ProjectsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { data, isLoading, error } = trpc.useQuery([
+  const { data, isLoading, error, refetch } = trpc.useQuery([
     "author.getMyProjects",
     { skip: 0, take: 50 },
   ]);
+
+  const { mutateAsync: publishProject } = trpc.useMutation([
+    "author.project.publishProject",
+  ]);
+
+  const handlePublish = async (projectId: string) => {
+    await publishProject({ projectId });
+    refetch();
+  };
 
   if (isLoading) {
     return <p>loading ...</p>;
@@ -43,7 +52,7 @@ const ProjectsPage = () => {
             </div>
           </div>
         </div>
-        <ProjectsList projects={data!} />
+        <ProjectsList projects={data!} publish={handlePublish} />
       </div>
     </AdminLayout>
   );
@@ -100,10 +109,12 @@ interface ProjectsListProps {
     name: string;
     previewImage?: string;
     draft: boolean;
+    createdAt: Date;
   }[];
+  publish: (projectId: string) => void;
 }
 
-const ProjectsList = ({ projects }: ProjectsListProps) => {
+const ProjectsList = ({ projects, publish }: ProjectsListProps) => {
   return (
     <div className="mt-8 flex flex-col">
       <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -136,8 +147,13 @@ const ProjectsList = ({ projects }: ProjectsListProps) => {
                           />
                         </div>
                         <div className="ml-4">
-                          <div className="font-medium text-gray-900">
-                            {project.name}{" "}
+                          <div className="space-x-2">
+                            <span className="font-medium text-gray-900">
+                              {project.name}
+                            </span>
+                            <span className="italic text-gray-900">
+                              {project.createdAt.toDateString()}
+                            </span>
                             <ProjectStatus draft={project.draft} />
                           </div>
                           <div className="text-gray-500  overflow-hidden whitespace-pre-wrap">
@@ -147,11 +163,17 @@ const ProjectsList = ({ projects }: ProjectsListProps) => {
                       </div>
                     </td>
 
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500"></td>
-                    <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                    <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-2">
+                      <button
+                        className="link link-primary"
+                        onClick={() => publish(project.id)}
+                      >
+                        {" "}
+                        publish{" "}
+                      </button>
                       <a
                         href={`./projects/${project.id}/edit`}
-                        className="text-indigo-600 hover:text-indigo-900"
+                        className="link link-primary"
                       >
                         Edit
                         <span className="sr-only">, {project.name}</span>
@@ -177,6 +199,6 @@ const ProjectStatus = ({ draft }: { draft: boolean }) => {
     );
   }
   return (
-    <span className={`${classes} bg-green-100 text-green-800`}>Active</span>
+    <span className={`${classes} bg-green-100 text-green-800`}>Published</span>
   );
 };

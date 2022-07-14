@@ -3,11 +3,14 @@ import { withTRPC } from "@trpc/next";
 import { AppRouter } from "src/api/mod";
 import "../styles/globals.css";
 import superjson from "superjson";
+import { UploadProvider } from "components/upload/upload";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: any) {
   return (
     <UserProvider>
-      <Component {...pageProps} />
+      <UploadProvider>
+        <Component {...pageProps} />
+      </UploadProvider>
     </UserProvider>
   );
 }

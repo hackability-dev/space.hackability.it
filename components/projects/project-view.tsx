@@ -1,9 +1,18 @@
 import { MDXRemote } from "next-mdx-remote";
+import { resizeCloudinaryImage } from "utils/cloudinary-image";
 import { RenderedProject } from "utils/getRenderedProject";
+import { ProjectFiles } from "./project-files";
 
 interface ProjectViewProps {
   project: RenderedProject;
 }
+
+const components: any = {
+  img: ({ alt, src }: { alt: string; src: string }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img alt={alt} src={resizeCloudinaryImage(src, 1200)} className="m-auto" />
+  ),
+};
 
 export const ProjectView = ({ project }: ProjectViewProps) => {
   return (
@@ -113,6 +122,11 @@ export const ProjectView = ({ project }: ProjectViewProps) => {
       </div>
       <div className="relative px-4 sm:px-6 lg:px-8">
         <div className="text-lg max-w-prose mx-auto">
+          <img
+            className="m-auto my-10"
+            src={resizeCloudinaryImage(project.previewImage, 800)}
+            alt={project.name}
+          />
           <h1>
             <span className="block text-base text-center text-green-600 font-semibold tracking-wide uppercase">
               Hackability Space
@@ -134,7 +148,7 @@ export const ProjectView = ({ project }: ProjectViewProps) => {
           <p>{project.how}</p>
         </div>
         <div className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
-          <MDXRemote {...project.renderedBody} components={{}} />
+          <MDXRemote {...project.renderedBody} components={components} />
         </div>
       </div>
 
@@ -142,6 +156,9 @@ export const ProjectView = ({ project }: ProjectViewProps) => {
         {project.steps.map((step, idx) => (
           <ProjectStepView step={step} key={idx} />
         ))}
+      </div>
+      <div className="mt-6 max-w-3xl text-gray-500 mx-auto">
+        <ProjectFiles projectId={project.id} />
       </div>
     </div>
   );
@@ -155,6 +172,11 @@ const ProjectStepView = ({
   return (
     <div className="text-lg max-w-prose mx-auto mt-2">
       <div className="text-lg max-w-prose mx-auto">
+        <img
+          className="m-auto my-10"
+          src={resizeCloudinaryImage(step.previewImage, 800)}
+          alt={step.title}
+        />
         <h2 className="mt-2 block text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           <span>{step.title}</span>
         </h2>
@@ -162,7 +184,7 @@ const ProjectStepView = ({
           {step.description}
         </p>
         <div className="mt-6 prose prose-indigo prose-lg text-gray-500 mx-auto">
-          <MDXRemote {...step.body} components={{}} />
+          <MDXRemote {...step.body} components={components} />
         </div>
       </div>
     </div>

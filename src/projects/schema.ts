@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const StepSchema = z.object({
+export const StepSchema = z.object({
   title: z.string().max(50),
   previewImage: z.string(),
   description: z.string().max(200),

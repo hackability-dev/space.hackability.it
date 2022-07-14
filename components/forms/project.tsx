@@ -1,38 +1,48 @@
 import deepEqual from "fast-deep-equal";
+import arrayMutators from "final-form-arrays";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { FieldArray } from "react-final-form-arrays";
 import { ProjectSchema } from "src/projects/schema";
+import { formatBytes } from "utils/bytes";
 import { cloudinaryUploadImage } from "utils/cloudinary";
 import { trpc } from "utils/trpc";
 import { validateZodSchema } from "utils/validate-zod";
 import { z } from "zod";
 import { CharCounter, ErrOrDescription } from "./forms-utils";
 import { FeatureImageField } from "./image";
-import arrayMutators from "final-form-arrays";
+import { UploadFilesFields } from "./upload-files";
 
 const EditorField = dynamic(() => import("./editor"), { ssr: false });
 
 type ProjectValue = z.TypeOf<typeof ProjectSchema>;
 
 interface ProjectFormProps {
+  projectId: string;
   initialValues?: Partial<ProjectValue>;
   onSubmit: (values: ProjectValue) => Promise<void>;
 }
 
-export const ProjectForm = ({ onSubmit, initialValues }: ProjectFormProps) => {
-  const { mutateAsync: getCloudinarySecret } = trpc.useMutation([
-    "author.cloudinaryUploadSignature",
+export const ProjectForm = ({
+  onSubmit,
+  initialValues,
+  projectId,
+}: ProjectFormProps) => {
+  const { mutateAsync: getUploadSignature } = trpc.useMutation([
+    "author.project.generateCloudinaryUploadSignature",
   ]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const uploadImage = useCallback(
     (file: Blob) => {
-      return cloudinaryUploadImage(file, () => getCloudinarySecret());
+      console.log("calling");
+      return cloudinaryUploadImage(file, () =>
+        getUploadSignature({ projectId })
+      );
     },
-    [getCloudinarySecret]
+    [getUploadSignature]
   );
 
   return (
@@ -257,6 +267,10 @@ export const ProjectForm = ({ onSubmit, initialValues }: ProjectFormProps) => {
             </div>
 
             <div className="pt-10">
+              <ProjectFileUpload projectId={projectId} />
+            </div>
+
+            <div className="pt-10">
               <div>
                 <h3 className="text-lg leading-6 font-medium text-gray-900">
                   Come riprodurre il progetto?
@@ -308,6 +322,137 @@ export const ProjectForm = ({ onSubmit, initialValues }: ProjectFormProps) => {
         </form>
       )}
     />
+  );
+};
+
+const ProjectFileUpload = ({ projectId }: { projectId: string }) => {
+  const {
+    data: files,
+    error,
+    isLoading,
+    refetch,
+  } = trpc.useQuery(["author.project.getProjectFiles", { projectId }]);
+
+  const { mutateAsync: getDownloadUrl } = trpc.useMutation([
+    "author.project.getDownloadFileUrl",
+  ]);
+  const { mutateAsync: deleteFileMut } = trpc.useMutation([
+    "author.project.deleteFile",
+  ]);
+
+  const downloadFile = useCallback(
+    async (projectId: string, fileName: string) => {
+      const url = await getDownloadUrl({ projectId, fileName });
+      if (url) {
+        window.open(url, "_blank");
+      }
+    },
+    [getDownloadUrl]
+  );
+
+  const deleteFile = useCallback(
+    async (projectId: string, fileName: string) => {
+      await deleteFileMut({ projectId, fileName });
+      refetch();
+    },
+    [deleteFileMut]
+  );
+
+  return (
+    <>
+      <div>
+        <h3 className="text-lg leading-6 font-medium text-gray-900">File</h3>
+        <p className="mt-1 text-sm text-gray-500">
+          Carica qui tutti i file che servono per riprodurre il progetto, e.g.
+          modelli 3D ,codice etc.
+        </p>
+      </div>
+      <div className="mt-2">
+        <UploadFilesFields
+          projectId={projectId}
+          onUploadCompleted={async () => {
+            refetch();
+          }}
+          onUploadFileCompleted={async () => {
+            refetch();
+          }}
+        />
+      </div>
+      <p className="mt-1 text-sm text-yellow-800">
+        Per favore, non intasare la piattaforma caricando video dimostrativi,
+        usa Youtube per questo!
+      </p>
+      <div className="mt-4">
+        <ProjectsFileList
+          files={files?.map((f) => ({
+            filename: f.name.split("/").pop()!,
+            size: Number(f.size),
+            type: "t",
+          }))}
+          downloadFile={downloadFile}
+          deleteFile={deleteFile}
+          projectId={projectId}
+        ></ProjectsFileList>
+      </div>
+    </>
+  );
+};
+interface ProjectsFileListProps {
+  projectId: string;
+  files?: {
+    filename: string;
+    size: number;
+    type: string;
+  }[];
+  downloadFile: (projectId: string, filename: string) => void;
+  deleteFile: (projectId: string, filename: string) => void;
+}
+
+const ProjectsFileList = ({
+  files,
+  projectId,
+  downloadFile,
+  deleteFile,
+}: ProjectsFileListProps) => {
+  if (!files) {
+    return null;
+  }
+  return (
+    <div className="overflow-x-auto">
+      <table className="table table-compact w-full">
+        <thead>
+          <tr>
+            <th>Filename</th>
+            <th>Size</th>
+            <th>Type</th>
+            <th className=""></th>
+          </tr>
+        </thead>
+        <tbody>
+          {files.map((file) => (
+            <tr key={file.filename}>
+              <th>{file.filename}</th>
+              <td>{formatBytes(file.size)}</td>
+              <td>{file.filename.split(".").pop()}</td>
+              <td className="flex justify-end">
+                <button
+                  className="link link-primary"
+                  onClick={() => downloadFile(projectId, file.filename)}
+                >
+                  download
+                </button>
+                <button
+                  className="link text-red-600 ml-2"
+                  onClick={() => deleteFile(projectId, file.filename)}
+                >
+                  delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

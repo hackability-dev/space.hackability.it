@@ -1,14 +1,18 @@
 import { TRPCError } from "@trpc/server";
-import { serialize } from "next-mdx-remote/serialize";
-import { cloudinary, cloudinaryConfig } from "../services/cloudinary";
+import {
+  CreateProjectSchema,
+  ProjectSchema,
+  StepSchema,
+} from "src/projects/schema";
+import { getRenderedProject } from "utils/getRenderedProject";
 import { z } from "zod";
 import { createRouter } from "./router";
-import { CreateProjectSchema, ProjectSchema } from "src/projects/schema";
-import { CreateProjectForm } from "components/forms/create-project";
-import { getRenderedProject } from "utils/getRenderedProject";
+import path from "path";
+
+const baseInput = { projectId: z.string() };
 
 export const projectsRouter = createRouter()
-  .middleware(async ({ ctx, next }) => {
+  .middleware(async ({ ctx, next, rawInput }) => {
     const user = ctx.user;
     if (!user) {
       throw new TRPCError({
@@ -16,66 +20,128 @@ export const projectsRouter = createRouter()
         message: "use required",
       });
     }
+    const result = z.object(baseInput).safeParse(rawInput);
+    if (!result.success) {
+      throw new TRPCError({ code: "BAD_REQUEST" });
+    }
+
+    const project = await ctx.db.project.findFirst({
+      where: {
+        id: result.data.projectId,
+        author: user.email,
+      },
+    });
+
+    if (!project) {
+      throw new TRPCError({ code: "BAD_REQUEST" });
+    }
+
     return next({
       ctx: {
         ...ctx,
         user: user,
+        project,
       },
     });
   })
-  .query("claims", {
-    resolve({ ctx }) {
-      return {
-        user: ctx.user,
-      };
-    },
-  })
-  .mutation("cloudinaryUploadSignature", {
-    resolve({}) {
-      const timestamp = Math.round(new Date().getTime() / 1000);
-      const folder = cloudinaryConfig.baseFolder + "/images";
-      const apiKey = cloudinaryConfig.apiKey;
-      const cloudName = cloudinaryConfig.cloudName;
-
-      const toSign = {
-        timestamp,
-        folder,
-      };
-      const signature = cloudinary.utils.api_sign_request(
-        toSign,
-        cloudinaryConfig.secret
-      );
-      return { timestamp, signature, folder, apiKey, cloudName };
-    },
-  })
-  .query("getMyProjects", {
+  .mutation("generateCloudinaryUploadSignature", {
     input: z.object({
-      skip: z.number().default(0),
-      take: z.number().default(10),
+      ...baseInput,
     }),
-    async resolve({ ctx, input }) {
-      return ctx.db.project.findMany({
+    resolve({ ctx, input }) {
+      return ctx.imageStorage.getSignUrl(input.projectId);
+    },
+  })
+  .mutation("publishProject", {
+    input: z.object({
+      ...baseInput,
+    }),
+    resolve({ ctx, input }) {
+      return ctx.db.project.update({
         where: {
-          author: ctx.user.email,
+          id: input.projectId,
         },
-        select: {
-          id: true,
-          author: true,
-          description: true,
-          name: true,
-          previewImage: true,
-          draft: true,
+        data: {
+          draft: false,
         },
-        ...input,
       });
     },
   })
-  .query("getMyProject", {
+  .mutation("generategsUploadUrl", {
     input: z.object({
-      id: z.string(),
+      ...baseInput,
+      fileName: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const folder = ctx.storage.gsProjectFolder(input.projectId);
+      const filepath = path.join(folder, input.fileName);
+      const [url] = await ctx.storage.bucket.file(filepath).getSignedUrl({
+        version: "v4",
+        action: "write",
+        expires: Date.now() + 2 * 60 * 1000, // 2 minutes
+        contentType: "application/x-www-form-urlencoded",
+      });
+      return url;
+    },
+  })
+  .mutation("getDownloadFileUrl", {
+    input: z.object({
+      ...baseInput,
+      fileName: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const folder = ctx.storage.gsProjectFolder(input.projectId);
+      const filepath = path.join(folder, input.fileName);
+      const file = ctx.storage.bucket.file(filepath);
+      if (await file.exists()) {
+        const [url] = await file.getSignedUrl({
+          version: "v4",
+          action: "read",
+          expires: Date.now() + 2 * 60 * 1000, // 2 minutes
+        });
+        return url;
+      }
+      return undefined;
+    },
+  })
+  .mutation("getDownloadProjectUrl", {
+    input: z.object({
+      ...baseInput,
+    }),
+    async resolve({ input, ctx }) {
+      const folder = ctx.storage.gsProjectFolder(input.projectId);
+      const file = ctx.storage.bucket.file(folder);
+      if (await file.exists()) {
+        const [url] = await file.getSignedUrl({
+          version: "v4",
+          action: "read",
+          expires: Date.now() + 2 * 60 * 1000, // 2 minutes
+        });
+        return url;
+      }
+      return undefined;
+    },
+  })
+  .mutation("deleteFile", {
+    input: z.object({
+      ...baseInput,
+      fileName: z.string(),
+    }),
+    async resolve({ input, ctx }) {
+      const folder = ctx.storage.gsProjectFolder(input.projectId);
+      const filepath = path.join(folder, input.fileName);
+      const file = ctx.storage.bucket.file(filepath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    },
+  })
+  .query("renderProject", {
+    input: z.object({
+      ...baseInput,
     }),
     async resolve({ ctx, input }) {
-      const project = await getRenderedProject(input.id, ctx.db);
+      const project = await getRenderedProject(input.projectId, ctx.db);
       if (!project || project.author !== ctx.user.email) {
         return null;
       }
@@ -84,10 +150,39 @@ export const projectsRouter = createRouter()
       };
     },
   })
+  .query("getMyProject", {
+    input: z.object({
+      ...baseInput,
+    }),
+    async resolve({ ctx, input }) {
+      const project = ctx.project;
+      return {
+        ...project,
+        buildSteps: StepSchema.array().parse(project.buildSteps),
+      };
+    },
+  })
+  .query("getProjectFiles", {
+    input: z.object({
+      ...baseInput,
+      skip: z.number().default(0),
+      take: z.number().default(100),
+    }),
+    async resolve({ ctx, input }) {
+      const folder = ctx.storage.gsProjectFolder(input.projectId);
+      const [files] = await ctx.storage.bucket.getFiles({
+        prefix: folder,
+      });
+      return files.map((f) => ({
+        name: f.name,
+        size: f.metadata.size,
+      }));
+    },
+  })
   .mutation("saveProject", {
     input: z.object({
+      ...baseInput,
       project: ProjectSchema,
-      id: z.string(),
     }),
     async resolve({ input, ctx }) {
       const project = await ctx.db.project.findFirst({
@@ -95,7 +190,7 @@ export const projectsRouter = createRouter()
           id: true,
         },
         where: {
-          id: input.id,
+          id: input.projectId,
           author: ctx.user.email,
         },
       });
@@ -107,137 +202,8 @@ export const projectsRouter = createRouter()
       return await ctx.db.project.update({
         data: input.project,
         where: {
-          id: input.id,
+          id: input.projectId,
         },
       });
-    },
-  })
-  .mutation("createProject", {
-    input: CreateProjectSchema,
-    async resolve({ input, ctx }) {
-      return await ctx.db.project.create({
-        data: {
-          name: input.name,
-          body: "",
-          description: "",
-          previewImage: "",
-          how: "",
-          what: "",
-          why: "",
-          buildSteps: [],
-          draft: true,
-          author: ctx.user.email,
-        },
-      });
-    },
-  })
-  .query("getUserInfo", {
-    async resolve({ ctx }) {
-      const latestProjects = await ctx.db.project.findMany({
-        take: 9,
-        where: {
-          author: ctx.user.email,
-        },
-      });
-      const publishedProjectsCount = await ctx.db.project.count({
-        where: {
-          published: true,
-          author: ctx.user.email,
-        },
-      });
-      return {
-        latestProjects,
-        publishedProjectsCount,
-      };
-    },
-  })
-  // .mutation("publishPost", {
-  //   input: z.object({
-  //     id: z.string(),
-  //   }),
-  //   async resolve({ ctx, input }) {
-  //     const post = await ctx.db.post.findFirst({
-  //       where: {
-  //         id: input.id,
-  //         authorId: ctx.authorId,
-  //       },
-  //     });
-  //     if (!post) {
-  //       throw new TRPCError({ code: "NOT_FOUND" });
-  //     }
-  //     if (post.path) {
-  //       throw new TRPCError({
-  //         code: "BAD_REQUEST",
-  //         message: "Post already published",
-  //       });
-  //     }
-  //     const d = post.publishedTime;
-  //     const slug = slugify(post.title.substring(0, 50), {
-  //       lower: true,
-  //       trim: true,
-  //       remove: /[*+~.()'"!:@]/g,
-  //     });
-  //     const path = `/blog/${d.getFullYear()}/${d.getMonth()}/${slug}/`;
-  //     return await ctx.db.post.update({
-  //       where: {
-  //         id: post.id,
-  //       },
-  //       data: {
-  //         path: path,
-  //       },
-  //     });
-  //   },
-  // })
-  // .query("getPost", {
-  //   input: z.object({
-  //     id: z.string(),
-  //   }),
-  //   async resolve({ input, ctx }) {
-  //     return await ctx.db.post.findFirst({
-  //       where: {
-  //         id: input.id,
-  //         authorId: ctx.authorId,
-  //       },
-  //     });
-  //   },
-  // })
-  // .query("getAuthor", {
-  //   async resolve({ ctx }) {
-  //     return ctx.db.author.findUnique({
-  //       where: {
-  //         id: ctx.authorId,
-  //       },
-  //     });
-  //   },
-  // })
-  // .query("getPosts", {
-  //   input: z.object({
-  //     skip: z.number().int().default(0),
-  //     take: z.number().int().default(20),
-  //   }),
-  //   async resolve({ input, ctx: { db, authorId } }) {
-  //     const query = {
-  //       where: {
-  //         authorId: authorId,
-  //       },
-  //     };
-  //     const total = await db.post.count(query);
-  //     const posts = await db.post.findMany({
-  //       ...query,
-  //       orderBy: {
-  //         publishedTime: "desc",
-  //       },
-  //       ...input,
-  //     });
-  //     return { posts, total };
-  //   },
-  // })
-  .mutation("mdSerialize", {
-    input: z.object({
-      body: z.string(),
-    }),
-    async resolve({ input }) {
-      const source = await serialize(input.body, {});
-      return { source };
     },
   });

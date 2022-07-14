@@ -55,6 +55,9 @@ export const getStaticProps = async () => {
     orderBy: {
       updatedAt: "desc",
     },
+    where: {
+      draft: false,
+    },
     skip: 0,
     take: 180,
   });
