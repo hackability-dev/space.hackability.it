@@ -331,10 +331,10 @@ const ProjectFileUpload = ({ projectId }: { projectId: string }) => {
     error,
     isLoading,
     refetch,
-  } = trpc.useQuery(["author.project.getProjectFiles", { projectId }]);
+  } = trpc.useQuery(["project.files.getProjectFiles", { projectId }]);
 
   const { mutateAsync: getDownloadUrl } = trpc.useMutation([
-    "author.project.getDownloadFileUrl",
+    "project.files.getDownloadFileUrl",
   ]);
   const { mutateAsync: deleteFileMut } = trpc.useMutation([
     "author.project.deleteFile",

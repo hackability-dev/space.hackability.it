@@ -84,44 +84,6 @@ export const projectsRouter = createRouter()
       return url;
     },
   })
-  .mutation("getDownloadFileUrl", {
-    input: z.object({
-      ...baseInput,
-      fileName: z.string(),
-    }),
-    async resolve({ input, ctx }) {
-      const folder = ctx.storage.gsProjectFolder(input.projectId);
-      const filepath = path.join(folder, input.fileName);
-      const file = ctx.storage.bucket.file(filepath);
-      if (await file.exists()) {
-        const [url] = await file.getSignedUrl({
-          version: "v4",
-          action: "read",
-          expires: Date.now() + 2 * 60 * 1000, // 2 minutes
-        });
-        return url;
-      }
-      return undefined;
-    },
-  })
-  .mutation("getDownloadProjectUrl", {
-    input: z.object({
-      ...baseInput,
-    }),
-    async resolve({ input, ctx }) {
-      const folder = ctx.storage.gsProjectFolder(input.projectId);
-      const file = ctx.storage.bucket.file(folder);
-      if (await file.exists()) {
-        const [url] = await file.getSignedUrl({
-          version: "v4",
-          action: "read",
-          expires: Date.now() + 2 * 60 * 1000, // 2 minutes
-        });
-        return url;
-      }
-      return undefined;
-    },
-  })
   .mutation("deleteFile", {
     input: z.object({
       ...baseInput,
@@ -162,23 +124,7 @@ export const projectsRouter = createRouter()
       };
     },
   })
-  .query("getProjectFiles", {
-    input: z.object({
-      ...baseInput,
-      skip: z.number().default(0),
-      take: z.number().default(100),
-    }),
-    async resolve({ ctx, input }) {
-      const folder = ctx.storage.gsProjectFolder(input.projectId);
-      const [files] = await ctx.storage.bucket.getFiles({
-        prefix: folder,
-      });
-      return files.map((f) => ({
-        name: f.name,
-        size: f.metadata.size,
-      }));
-    },
-  })
+
   .mutation("saveProject", {
     input: z.object({
       ...baseInput,

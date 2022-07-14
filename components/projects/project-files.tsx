@@ -4,12 +4,12 @@ import { trpc } from "utils/trpc";
 
 export const ProjectFiles = ({ projectId }: { projectId: string }) => {
   const { data: files } = trpc.useQuery([
-    "author.project.getProjectFiles",
+    "project.files.getProjectFiles",
     { projectId },
   ]);
 
   const { mutateAsync: getDownloadUrl } = trpc.useMutation([
-    "author.project.getDownloadFileUrl",
+    "project.files.getDownloadFileUrl",
   ]);
 
   const downloadFile = useCallback(
