@@ -1,4 +1,5 @@
 import { ProjectPreview } from "components/project-preview";
+import { SEO } from "components/seo";
 import Layout from "core/layouts/Layout";
 import { InferGetStaticPropsType } from "next";
 import Link from "next/link";
@@ -9,6 +10,7 @@ import { Nav } from "ui/nav";
 const HomePage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
     <>
+      <SEO />
       <Nav />
       <Main {...props} />
       <Footer />

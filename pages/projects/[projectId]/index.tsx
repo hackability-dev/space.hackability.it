@@ -1,4 +1,5 @@
 import { ProjectView } from "components/projects/project-view";
+import { SEO } from "components/seo";
 import { GetStaticPropsContext, InferGetStaticPropsType } from "next";
 import { db } from "services/db";
 import { Footer } from "ui/footer";
@@ -10,6 +11,15 @@ type Props = InferGetStaticPropsType<typeof getStaticPropsAfterCheck>;
 const ProjectPage = ({ project }: Props) => {
   return (
     <>
+      {project && (
+        <SEO
+          title={project.name}
+          description={project.description}
+          image={project.previewImage}
+          type="article"
+          date={project.createdAt}
+        />
+      )}
       <Nav />
       {project && <ProjectView project={project} />}
       <Footer />

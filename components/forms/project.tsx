@@ -130,7 +130,7 @@ export const ProjectForm = ({
                           meta={meta}
                           description=" Scrivi una breve presentazione del tuo progetto"
                         />
-                        <CharCounter max={200} current={input.value.length} />
+                        <CharCounter max={400} current={input.value.length} />
                       </div>
                     </div>
                   )}
@@ -186,7 +186,7 @@ export const ProjectForm = ({
                           meta={meta}
                           description="Descrivi il bisgno"
                         />
-                        <CharCounter max={200} current={input.value.length} />
+                        <CharCounter max={400} current={input.value.length} />
                       </div>
                     </div>
                   )}
@@ -214,7 +214,7 @@ export const ProjectForm = ({
                           meta={meta}
                           description="Descrivi come il bisogno viene risolto"
                         />
-                        <CharCounter max={200} current={input.value.length} />
+                        <CharCounter max={400} current={input.value.length} />
                       </div>
                     </div>
                   )}
@@ -243,7 +243,7 @@ export const ProjectForm = ({
                           meta={meta}
                           description="diy, hacking, arduino, 3D printed, casted, etc."
                         />
-                        <CharCounter max={200} current={input.value.length} />
+                        <CharCounter max={400} current={input.value.length} />
                       </div>
                     </div>
                   )}
@@ -530,7 +530,7 @@ const StepForm = ({ name, uploadImage, remove }: StepFormProps) => {
                 meta={meta}
                 description="Descrivi brevemente lo step"
               />
-              <CharCounter max={200} current={input.value.length} />
+              <CharCounter max={400} current={input.value.length} />
             </div>
           </div>
         )}
