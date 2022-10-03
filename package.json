@@ -20,7 +20,7 @@
     "@prisma/client": "^3.14.0",
     "@toast-ui/react-editor": "^3.1.7",
     "@trpc/client": "^9.23.6",
-    "@trpc/next": "^9.23.6",
+    "@trpc/next": "^9.27.4",
     "@trpc/react": "^9.23.6",
     "@trpc/server": "^9.23.6",
     "axios": "^0.27.2",
