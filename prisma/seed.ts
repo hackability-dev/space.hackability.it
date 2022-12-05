@@ -1,29 +1,52 @@
 import { Project } from "@prisma/client";
+import { z } from "zod";
 import db from "./index";
 import { projects } from "./projects";
 
-type NonNullable<T> = Exclude<T, null | undefined>;
-type Ref = NonNullable<Parameters<typeof db.project.createMany>[0]>["data"];
+export const StepSchema = z.object({
+  title: z.string().max(50),
+  previewImage: z.string(),
+  description: z.string().max(400),
+  body: z.string(),
+});
+
+type Step = z.TypeOf<typeof StepSchema>;
 
 const seed = async () => {
-  const data = projects.map((project) => {
+  const data = projects.map((project): Project => {
+    const steps = project.steps.map((step): Step => {
+      return {
+        title: step.title,
+        description: step.info || "",
+        body: step.description
+          .map((el) => {
+            if (el.type === "text") {
+              return (el as any).content as string;
+            } else if (el.type === "img") {
+              return `![](${(el as any).img.url})`;
+            }
+            return "";
+          })
+          .join("\n\n")
+          .replaceAll("<br>", "\n\n"),
+        previewImage: "",
+      };
+    });
+
     return {
       name: project.name,
       author: "ludovico@hackability.it",
       description: project.short,
       why: project.why,
       how: project.how,
-      draft: true,
+      draft: !project.completed,
       previewImage: project.preview.url || "",
-      buildSteps: [],
+      buildSteps: steps,
       body: project.long
         .map((el) => {
-          console.log(project.name, el.type);
           if (el.type === "text") {
-            console.log((el as any).content);
             return (el as any).content as string;
           } else if (el.type === "img") {
-            console.log((el as any).img.url);
             return `![](${(el as any).img.url})`;
           }
           return "";
@@ -35,10 +58,13 @@ const seed = async () => {
       published: false,
       underRevision: true,
       images: [],
-      license: "",
+      license: project.license || "",
+      id: project.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
   });
-  await db.project.deleteMany({});
+  // await db.project.deleteMany({});
   await db.project.createMany({ data });
   console.log("done");
 };

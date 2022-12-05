@@ -1,11 +1,10 @@
-import { UserProvider } from "@auth0/nextjs-auth0";
+import { UserProvider } from "@auth0/nextjs-auth0/client";
 import { withTRPC } from "@trpc/next";
-import { AppRouter } from "src/api/mod";
-import "../styles/globals.css";
-import superjson from "superjson";
 import { UploadProvider } from "components/upload/upload";
 import Head from "next/head";
-import { useRouter } from "next/router";
+import { AppRouter } from "src/api/mod";
+import superjson from "superjson";
+import "../styles/globals.css";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: any) {
   return (

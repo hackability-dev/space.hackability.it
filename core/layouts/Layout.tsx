@@ -1,7 +1,10 @@
 import Head from "next/head";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
-const Layout: FC<{ title?: string }> = ({ title, children }) => {
+const Layout: FC<{ title?: string; children: ReactNode }> = ({
+  title,
+  children,
+}) => {
   return <>{children}</>;
 };
 

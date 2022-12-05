@@ -1,5 +1,5 @@
 import { Dialog } from "@headlessui/react";
-import { XIcon } from "@heroicons/react/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import { AdminLayout } from "components/admin-layout";
 import { ProjectForm } from "components/forms/project";
 import { ProjectView } from "components/projects/project-view";
@@ -111,7 +111,7 @@ const ProjectPreviewModal = ({
           onClick={() => setShow(false)}
           className="absolute top-4 right-4 grid h-10 w-10 place-content-center rounded-full hover:bg-slate-200"
         >
-          <XIcon className="h-6 w-6" />
+          <XMarkIcon className="h-6 w-6" />
         </button>
       </div>
     </Dialog>

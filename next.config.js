@@ -8,7 +8,5 @@ module.exports = withSuperjson()({
     loader: "cloudinary",
     path: "https://res.cloudinary.com/dbdvy5b2z/image/upload/",
   },
-  experimental: {
-    outputStandalone: true,
-  },
+  output: "standalone",
 });

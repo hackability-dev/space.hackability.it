@@ -1,15 +1,14 @@
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import {
   BellIcon,
   FolderIcon,
   HomeIcon,
-  MenuAlt2Icon,
-  XIcon,
-} from "@heroicons/react/outline";
-import { SearchIcon } from "@heroicons/react/solid";
+  Bars3Icon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { FC, Fragment, useState } from "react";
+import { FC, Fragment, ReactNode, useState } from "react";
 import { Logo } from "ui/logo";
 import { classNames } from "utils/class-names";
 
@@ -41,7 +40,7 @@ const userNavigation: (NavLink | NavAction)[] = [
   // { type: "action", name: "Sign out", action: () => signOut() },
 ];
 
-export const AdminLayout: FC = ({ children }) => {
+export const AdminLayout: FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, error, isLoading } = useUser();
 
@@ -94,7 +93,7 @@ export const AdminLayout: FC = ({ children }) => {
                       onClick={() => setSidebarOpen(false)}
                     >
                       <span className="sr-only">Close sidebar</span>
-                      <XIcon
+                      <XMarkIcon
                         className="h-6 w-6 text-white"
                         aria-hidden="true"
                       />
@@ -185,7 +184,7 @@ export const AdminLayout: FC = ({ children }) => {
                 onClick={() => setSidebarOpen(true)}
               >
                 <span className="sr-only">Open sidebar</span>
-                <MenuAlt2Icon className="h-6 w-6" aria-hidden="true" />
+                <Bars3Icon className="h-6 w-6" aria-hidden="true" />
               </button>
               <div className="flex-1 flex justify-between px-4 md:px-0">
                 <div className="flex-1 flex"></div>
