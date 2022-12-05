@@ -16,7 +16,7 @@ export const createContext = async ({
   req,
   res,
 }: trpcNext.CreateNextContextOptions) => {
-  const session = getSession(req, res);
+  const session = await getSession(req, res);
   return {
     req,
     res,

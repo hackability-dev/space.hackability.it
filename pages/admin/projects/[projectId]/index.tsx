@@ -28,7 +28,7 @@ const ProjectPage = () => {
     <AdminLayout>
       <h1 className=""> {project.name} </h1>
       <Link href={`${projectId}/edit`}>
-        <a> Modifica progetto </a>
+         Modifica progetto 
       </Link>
       <ProjectView project={project} />
     </AdminLayout>

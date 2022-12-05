@@ -36,15 +36,15 @@ const Main = ({ projects }: InferGetStaticPropsType<typeof getStaticProps>) => {
       <div className="bg-gray-100">
         <div className="p-10 max-w-7xl m-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <Link key={project.id} href={`/projects/${project.id}`}>
-              <a>
-                <ProjectPreview
-                  project={project}
-                  description={project.description}
-                  name={project.name}
-                />
-              </a>
-            </Link>
+            (<Link key={project.id} href={`/projects/${project.id}`}>
+
+              <ProjectPreview
+                project={project}
+                description={project.description}
+                name={project.name}
+              />
+
+            </Link>)
           ))}
         </div>
       </div>

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosProgressEvent } from "axios";
 import cuid from "cuid";
 import React, {
   createContext,
@@ -85,8 +85,8 @@ export const UploadProvider = ({ children }: { children: ReactElement }) => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        onUploadProgress: (p: ProgressEvent) => {
-          const per = Math.round((p.loaded * 100) / p.total);
+        onUploadProgress: (p: AxiosProgressEvent) => {
+          const per = Math.round((p.loaded * 100) / p.total!);
           console.log(per);
           setUpload(k, {
             progress: per,

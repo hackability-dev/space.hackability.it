@@ -12,18 +12,18 @@ export function Nav() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex justify-between items-center py-6 md:justify-start md:space-x-10">
             <div className="flex justify-start lg:w-0 lg:flex-1">
-              <Link href="/">
-                <a className="flex items-center align-middle">
-                  <Logo className="h-12 w-12 mr-4" />
-                  <div className="flex flex-col">
-                    <span className="uppercase text-sm font-semibold">
-                      Hackability
-                    </span>
-                    <span className="uppercase text-sm text-green-600">
-                      Space
-                    </span>
-                  </div>
-                </a>
+              <Link href="/" className="flex items-center align-middle">
+
+                <Logo className="h-12 w-12 mr-4" />
+                <div className="flex flex-col">
+                  <span className="uppercase text-sm font-semibold">
+                    Hackability
+                  </span>
+                  <span className="uppercase text-sm text-green-600">
+                    Space
+                  </span>
+                </div>
+
               </Link>
             </div>
 
@@ -31,20 +31,22 @@ export function Nav() {
               {user ? (
                 <div>
                   <Link href="/admin">
-                    <a>
-                      <img
-                        className="h-10 w-10 rounded-full"
-                        src={user.picture!}
-                        alt={user.name || "a user"}
-                      />
-                    </a>
+
+                    <img
+                      className="h-10 w-10 rounded-full"
+                      src={user.picture!}
+                      alt={user.name || "a user"}
+                    />
+
                   </Link>
                 </div>
               ) : (
-                <Link href="/api/auth/login">
-                  <a className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
+                <Link
+                  href="/api/auth/login"
+                  className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900">
+                  
                     Sign in
-                  </a>
+                  
                 </Link>
               )}
             </div>

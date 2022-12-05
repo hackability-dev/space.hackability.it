@@ -1,9 +1,8 @@
-import { handleLogout, useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { AdminLayout } from "components/admin-layout";
 import { ProjectPreview } from "components/project-preview";
 import Link from "next/link";
 import { trpc } from "utils/trpc";
-// import { signOut, useSession } from "next-auth/react";
 
 const Admin = () => {
   const userData = useUser();
@@ -34,13 +33,11 @@ const Admin = () => {
           {info.latestProjects.map((p) => (
             <li key={p.id}>
               <Link href={`./admin/projects/${p.id}`}>
-                <a>
-                  <ProjectPreview
-                    description={p.description}
-                    name={p.name}
-                    project={p}
-                  />
-                </a>
+                <ProjectPreview
+                  description={p.description}
+                  name={p.name}
+                  project={p}
+                />
               </Link>
             </li>
           ))}
