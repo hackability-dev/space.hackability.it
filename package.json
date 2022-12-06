@@ -24,7 +24,7 @@
     "@trpc/react": "^9.27.4",
     "@trpc/server": "^9.27.4",
     "@vercel/og": "^0.0.21",
-    "axios": "^1.2.0",
+    "axios": "^1.2.1",
     "cloudinary": "^1.32.0",
     "cuid": "^2.1.8",
     "daisyui": "^2.42.1",
