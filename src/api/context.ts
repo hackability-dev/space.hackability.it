@@ -1,9 +1,9 @@
-import { getSession, getAccessToken } from "@auth0/nextjs-auth0";
+import { getSession } from "@auth0/nextjs-auth0";
 import { PrismaClient } from "@prisma/client";
 import * as trpc from "@trpc/server";
 import * as trpcNext from "@trpc/server/adapters/next";
-import { storage } from "./storage";
 import { imageStorage } from "./cloudinary";
+import { storage } from "./storage";
 
 const db = new PrismaClient({
   log:

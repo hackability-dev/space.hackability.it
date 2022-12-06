@@ -3,6 +3,9 @@ const { withSuperjson } = require("next-superjson");
 module.exports = withSuperjson()({
   reactStrictMode: true,
   swcMinify: true,
+  experimental: {
+    appDir: true,
+  },
   images: {
     domains: ["res.cloudinary.com"],
     loader: "cloudinary",
