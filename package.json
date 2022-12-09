@@ -15,7 +15,7 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@google-cloud/storage": "^6.7.0",
-    "@headlessui/react": "^1.7.4",
+    "@headlessui/react": "^1.7.5",
     "@heroicons/react": "^2.0.13",
     "@prisma/client": "^4.7.1",
     "@toast-ui/react-editor": "^3.2.2",
