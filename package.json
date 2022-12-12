@@ -27,7 +27,7 @@
     "axios": "^1.2.0",
     "cloudinary": "^1.32.0",
     "cuid": "^2.1.8",
-    "daisyui": "^2.42.1",
+    "daisyui": "^2.43.1",
     "env-ts-conf": "^1.0.1",
     "final-form": "^4.20.7",
     "firebase-admin": "^11.3.0",
