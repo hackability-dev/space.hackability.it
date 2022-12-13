@@ -30,7 +30,7 @@ COPY . .
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 ARG DATABASE_URL
-RUN npm run build
+RUN pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
