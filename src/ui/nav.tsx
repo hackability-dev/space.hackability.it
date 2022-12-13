@@ -5,6 +5,7 @@ import { Logo } from "./logo";
 import { Popover } from "@headlessui/react";
 import { signIn } from "next-auth/react";
 import { stat } from "fs";
+import { UserMenu } from "./user-menu";
 
 export function Nav() {
   return (
@@ -12,19 +13,9 @@ export function Nav() {
       <Popover className="relative bg-white shadow">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="flex items-center justify-between py-6 md:justify-start md:space-x-10">
-            <div className="flex justify-start lg:w-0 lg:flex-1">
-              <Link href="/" className="flex items-center align-middle">
-                <Logo className="mr-4 h-12 w-12" />
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold uppercase">
-                    Hackability
-                  </span>
-                  <span className="text-sm uppercase text-green-600">
-                    Space
-                  </span>
-                </div>
-              </Link>
-              <AvatarInfo />
+            <div className="flex items-center justify-between  lg:flex-1">
+              <LogoLink />
+              <UserMenu />
             </div>
           </div>
         </div>
@@ -33,6 +24,18 @@ export function Nav() {
     </div>
   );
 }
+
+const LogoLink = () => {
+  return (
+    <Link href="/" className="flex items-center align-middle">
+      <Logo className="mr-4 h-12 w-12" />
+      <div className="flex flex-col">
+        <span className="text-sm font-semibold uppercase">Hackability</span>
+        <span className="text-sm uppercase text-green-600">Space</span>
+      </div>
+    </Link>
+  );
+};
 
 const Banner = () => {
   return (
@@ -70,42 +73,6 @@ const Banner = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-const AvatarInfo = () => {
-  const { data: session, status } = useSession();
-  if (status === "loading") {
-    return null;
-  }
-
-  if (status === "unauthenticated") {
-    return (
-      <div className="flex items-center justify-end md:flex-1 lg:w-0">
-        <button
-          className="whitespace-nowrap text-base font-medium text-gray-500 hover:text-gray-900"
-          onClick={() => signIn()}
-        >
-          Sign in
-        </button>
-      </div>
-    );
-  }
-
-  const user = session?.user!;
-  return (
-    <div className="flex items-center justify-end md:flex-1 lg:w-0">
-      <div>
-        <Link href="/admin">
-          <img
-            className="h-10 w-10 rounded-full"
-            src={user.image!}
-            alt={user.name || "a user"}
-          />
-        </Link>
-      </div>
-      )
     </div>
   );
 };

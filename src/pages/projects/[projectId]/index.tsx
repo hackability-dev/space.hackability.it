@@ -9,6 +9,9 @@ import { Nav } from "../../../ui/nav";
 import { SEO } from "../../../ui/seo";
 
 const ProjectPage = ({ project }: { project: RenderedProject }) => {
+  if (!project) {
+    return <p>loaidng.</p>;
+  }
   return (
     <>
       <SEO
@@ -49,7 +52,7 @@ export const getStaticProps = async ({
 const getStaticPropsAfterCheck = async ({
   params,
 }: GetStaticPropsContext<{ projectId: string }>) => {
-  const projectId = params?.projectId!;
+  const projectId = params!.projectId!;
   if (!projectId) {
     return {
       notFound: true,

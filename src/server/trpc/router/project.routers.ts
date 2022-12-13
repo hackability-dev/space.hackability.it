@@ -1,63 +1,67 @@
 import { TRPCError } from "@trpc/server";
-import {
-  CreateProjectSchema,
-  ProjectSchema,
-  StepSchema,
-} from "src/projects/schema";
-import { getRenderedProject } from "utils/getRenderedProject";
-import { z } from "zod";
-import { createRouter } from "./router";
 import path from "path";
+import { z } from "zod";
+import { ProjectSchema, StepsSchema } from "../../../projects/schema";
+import { renderProject } from "../../../projects/server/render";
+import * as t from "../trpc";
 
 const baseInput = { projectId: z.string() };
 
-export const projectsRouter = createRouter()
-  .middleware(async ({ ctx, next, rawInput }) => {
-    const user = ctx.user;
-    if (!user) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "use required",
-      });
-    }
-    const result = z.object(baseInput).safeParse(rawInput);
-    if (!result.success) {
-      throw new TRPCError({ code: "BAD_REQUEST" });
-    }
+const withProject = t.middleware(async ({ ctx, next, rawInput }) => {
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
 
-    const project = await ctx.db.project.findFirst({
-      where: {
-        id: result.data.projectId,
-        author: user.email,
-      },
-    });
+  const result = z.object(baseInput).safeParse(rawInput);
+  if (!result.success) {
+    throw new TRPCError({ code: "BAD_REQUEST" });
+  }
 
-    if (!project) {
-      throw new TRPCError({ code: "BAD_REQUEST" });
-    }
+  const user = ctx.session.user;
 
-    return next({
-      ctx: {
-        ...ctx,
-        user: user,
-        project,
-      },
-    });
-  })
-  .mutation("generateCloudinaryUploadSignature", {
-    input: z.object({
-      ...baseInput,
-    }),
-    resolve({ ctx, input }) {
-      return ctx.imageStorage.getSignUrl(input.projectId);
+  const project = await ctx.prisma.project.findFirst({
+    where: {
+      id: result.data.projectId,
+      author: user.email,
     },
-  })
-  .mutation("publishProject", {
-    input: z.object({
-      ...baseInput,
+  });
+
+  if (!project) {
+    throw new TRPCError({ code: "BAD_REQUEST" });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      project,
+      session: {
+        ...ctx.session,
+        user: ctx.session.user,
+      },
+    },
+  });
+});
+
+const pAuthor = t.publicProcedure.use(withProject);
+
+export const projectsRouter = t.router({
+  generateCloudinaryUploadSignature: pAuthor
+    .input(
+      z.object({
+        ...baseInput,
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.imageStorage.getSignUrl(input.projectId);
     }),
-    resolve({ ctx, input }) {
-      return ctx.db.project.update({
+  publishProject: pAuthor
+    .input(
+      z.object({
+        ...baseInput,
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.project.update({
         where: {
           id: input.projectId,
         },
@@ -65,14 +69,15 @@ export const projectsRouter = createRouter()
           draft: false,
         },
       });
-    },
-  })
-  .mutation("generategsUploadUrl", {
-    input: z.object({
-      ...baseInput,
-      fileName: z.string(),
     }),
-    async resolve({ input, ctx }) {
+  generategsUploadUrl: pAuthor
+    .input(
+      z.object({
+        ...baseInput,
+        fileName: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
       const folder = ctx.storage.gsProjectFolder(input.projectId);
       const filepath = path.join(folder, input.fileName);
       const [url] = await ctx.storage.bucket.file(filepath).getSignedUrl({
@@ -82,62 +87,65 @@ export const projectsRouter = createRouter()
         contentType: "application/x-www-form-urlencoded",
       });
       return url;
-    },
-  })
-  .mutation("deleteFile", {
-    input: z.object({
-      ...baseInput,
-      fileName: z.string(),
     }),
-    async resolve({ input, ctx }) {
+  deleteFile: pAuthor
+    .input(
+      z.object({
+        ...baseInput,
+        fileName: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
       const folder = ctx.storage.gsProjectFolder(input.projectId);
       const filepath = path.join(folder, input.fileName);
       const file = ctx.storage.bucket.file(filepath);
       if (await file.exists()) {
         await file.delete();
       }
-    },
-  })
-  .query("renderProject", {
-    input: z.object({
-      ...baseInput,
     }),
-    async resolve({ ctx, input }) {
-      const project = await getRenderedProject(input.projectId, ctx.db);
-      if (!project || project.author !== ctx.user.email) {
+  renderProject: pAuthor
+    .input(
+      z.object({
+        ...baseInput,
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const project = await renderProject(input.projectId);
+      if (!project || project.author !== ctx.session.user.email) {
         return null;
       }
       return {
         ...project,
       };
-    },
-  })
-  .query("getMyProject", {
-    input: z.object({
-      ...baseInput,
     }),
-    async resolve({ ctx, input }) {
+  getMyProject: pAuthor
+    .input(
+      z.object({
+        ...baseInput,
+      })
+    )
+    .query(async ({ ctx, input }) => {
       const project = ctx.project;
       return {
         ...project,
-        buildSteps: StepSchema.array().parse(project.buildSteps),
+        buildSteps: StepsSchema.parse(project.buildSteps),
       };
-    },
-  })
-
-  .mutation("saveProject", {
-    input: z.object({
-      ...baseInput,
-      project: ProjectSchema,
     }),
-    async resolve({ input, ctx }) {
-      const project = await ctx.db.project.findFirst({
+  saveProject: pAuthor
+    .input(
+      z.object({
+        ...baseInput,
+        project: ProjectSchema,
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const project = await ctx.prisma.project.findFirst({
         select: {
           id: true,
         },
         where: {
           id: input.projectId,
-          author: ctx.user.email,
+          author: ctx.session.user.email,
         },
       });
       if (!project) {
@@ -145,11 +153,11 @@ export const projectsRouter = createRouter()
           code: "NOT_FOUND",
         });
       }
-      return await ctx.db.project.update({
+      return await ctx.prisma.project.update({
         data: input.project,
         where: {
           id: input.projectId,
         },
       });
-    },
-  });
+    }),
+});

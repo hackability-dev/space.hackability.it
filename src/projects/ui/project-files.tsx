@@ -3,14 +3,10 @@ import { formatBytes } from "../../utils/bytes";
 import { trpc } from "../../utils/trpc";
 
 export const ProjectFiles = ({ projectId }: { projectId: string }) => {
-  const { data: files } = trpc.useQuery([
-    "project.files.getProjectFiles",
-    { projectId },
-  ]);
+  const { data: files } = trpc.files.getProjectFiles.useQuery({ projectId });
 
-  const { mutateAsync: getDownloadUrl } = trpc.useMutation([
-    "project.files.getDownloadFileUrl",
-  ]);
+  const { mutateAsync: getDownloadUrl } =
+    trpc.files.getDownloadFileUrl.useMutation();
 
   const downloadFile = useCallback(
     async (projectId: string, fileName: string) => {

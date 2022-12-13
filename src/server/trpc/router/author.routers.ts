@@ -1,40 +1,21 @@
-import { TRPCError } from "@trpc/server";
-import {
-  CreateProjectSchema,
-  ProjectSchema,
-  StepSchema,
-} from "src/projects/schema";
-import { getRenderedProject } from "utils/getRenderedProject";
 import { z } from "zod";
-import { createRouter } from "./router";
-import path from "path";
+import { CreateProjectSchema } from "../../../projects/schema";
+import * as t from "../trpc";
 
-export const authorRouters = createRouter()
-  .middleware(async ({ ctx, next, rawInput }) => {
-    const user = ctx.user;
-    if (!user) {
-      throw new TRPCError({
-        code: "UNAUTHORIZED",
-        message: "use required",
-      });
-    }
+const pAuth = t.protectedProcedure;
 
-    return next({
-      ctx: {
-        ...ctx,
-        user: user,
-      },
-    });
-  })
-  .query("getMyProjects", {
-    input: z.object({
-      skip: z.number().default(0),
-      take: z.number().default(10),
-    }),
-    async resolve({ ctx, input }) {
-      return ctx.db.project.findMany({
+export const authorRouter = t.router({
+  getMyProjects: pAuth
+    .input(
+      z.object({
+        skip: z.number().default(0),
+        take: z.number().default(10),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.project.findMany({
         where: {
-          author: ctx.user.email,
+          author: ctx.session.user.email,
         },
         select: {
           id: true,
@@ -50,12 +31,11 @@ export const authorRouters = createRouter()
         },
         ...input,
       });
-    },
-  })
-  .mutation("createProject", {
-    input: CreateProjectSchema,
-    async resolve({ input, ctx }) {
-      return await ctx.db.project.create({
+    }),
+  createProject: pAuth
+    .input(CreateProjectSchema)
+    .mutation(async ({ input, ctx }) => {
+      return await ctx.prisma.project.create({
         data: {
           name: input.name,
           body: "",
@@ -66,28 +46,26 @@ export const authorRouters = createRouter()
           why: "",
           buildSteps: [],
           draft: true,
-          author: ctx.user.email,
+          author: ctx.session.user.email,
         },
       });
-    },
-  })
-  .query("getUserInfo", {
-    async resolve({ ctx }) {
-      const latestProjects = await ctx.db.project.findMany({
-        take: 9,
-        where: {
-          author: ctx.user.email,
-        },
-      });
-      const publishedProjectsCount = await ctx.db.project.count({
-        where: {
-          published: true,
-          author: ctx.user.email,
-        },
-      });
-      return {
-        latestProjects,
-        publishedProjectsCount,
-      };
-    },
-  });
+    }),
+  getUserInfo: pAuth.query(async ({ ctx }) => {
+    const latestProjects = await ctx.prisma.project.findMany({
+      take: 9,
+      where: {
+        author: ctx.session.user.email,
+      },
+    });
+    const publishedProjectsCount = await ctx.prisma.project.count({
+      where: {
+        published: true,
+        author: ctx.session.user.email,
+      },
+    });
+    return {
+      latestProjects,
+      publishedProjectsCount,
+    };
+  }),
+});

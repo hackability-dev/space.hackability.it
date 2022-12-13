@@ -6,6 +6,7 @@ import { trpc } from "../utils/trpc";
 
 import "../styles/globals.css";
 import Head from "next/head";
+import { UploadProvider } from "../providers/upload";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -14,9 +15,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
   return (
     <>
       <AppHead />
-      <SessionProvider session={session}>
-        <Component {...pageProps} />
-      </SessionProvider>
+      <UploadProvider>
+        <SessionProvider session={session}>
+          <Component {...pageProps} />
+        </SessionProvider>
+      </UploadProvider>
       <IubendaCookieBanner />
     </>
   );

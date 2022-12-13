@@ -7,7 +7,7 @@ import { z } from "zod";
  */
 export const serverSchema = z.object({
   DATABASE_URL: z.string().url(),
-  NODE_ENV: z.enum(["development", "test", "production"]),
+  NODE_ENV: z.enum(["development", "test", "production", "build"]),
   NEXTAUTH_SECRET:
     process.env.NODE_ENV === "production"
       ? z.string().min(1)
@@ -21,6 +21,13 @@ export const serverSchema = z.object({
   ),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_APPLICATION_CREDENTIALS: z.string(),
+  GS_BUCKET_NAME: z.string(),
+  GS_BASE_FOLDER: z.string(),
+  CLOUDINARY_BASE_FORLDER: z.string(),
+  CLOUDINARY_KEY: z.string(),
+  CLOUDINARY_SECRET: z.string(),
+  CLOUDINARY_NAME: z.string(),
 });
 
 /**
