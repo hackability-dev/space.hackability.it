@@ -6,11 +6,13 @@ import { type EditorData, EditorDataSchema } from "./schema";
 const Editor = ({
   uploadImage,
   onChange,
-  initialValue,
+  initialValue = {
+    blocks: [],
+  },
 }: {
   uploadImage: (file: Blob) => Promise<string>;
   onChange: (data: EditorData) => void | Promise<void>;
-  initialValue: any;
+  initialValue?: EditorData;
 }) => {
   const [id] = useState(cuid());
   const ref = useRef<EditorJS | null>();

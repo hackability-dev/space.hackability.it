@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { CreateProjectSchema } from "../../../projects/schema";
+import { CreateProjectSchema, ProjectSchema } from "../../../projects/schema";
+import { EditorDataSchema } from "../../../ui/editor/schema";
 import * as t from "../trpc";
 
 const pAuth = t.protectedProcedure;
@@ -38,7 +39,9 @@ export const authorRouter = t.router({
       return await ctx.prisma.project.create({
         data: {
           name: input.name,
-          body: "",
+          body: EditorDataSchema.parse({
+            blocks: [],
+          }),
           description: "",
           previewImage: "",
           how: "",

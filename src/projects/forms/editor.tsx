@@ -14,7 +14,7 @@ const EditorField = ({ name, uploadImage }: EditorFieldProps) => {
         return (
           <>
             <Editor
-              initialValue={props.input.value || {}}
+              initialValue={props.input.value}
               onChange={(data) => {
                 props.input.onChange(data);
               }}
