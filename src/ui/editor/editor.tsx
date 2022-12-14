@@ -19,7 +19,7 @@ const Editor = ({
       editor.clear();
       editor.destroy();
     };
-  }, [id, onChange, uploadImage, initialValue]);
+  });
 
   return (
     <div className="prose-sm prose w-full min-w-full rounded  bg-gray-100 p-0 py-5 shadow-lg  prose-img:m-0">
