@@ -1,6 +1,6 @@
-import { GetStaticPropsContext } from "next";
+import { type GetStaticPropsContext } from "next";
 import {
-  RenderedProject,
+  type RenderedProject,
   renderProject,
 } from "../../../projects/server/render";
 import { ProjectView } from "../../../projects/ui/project-view";
@@ -15,11 +15,11 @@ const ProjectPage = ({ project }: { project: RenderedProject }) => {
   return (
     <>
       <SEO
-        title={project!.name}
-        description={project!.description}
-        image={project!.previewImage}
+        title={project.name}
+        description={project.description}
+        image={project.previewImage}
         type="article"
-        date={project!.createdAt}
+        date={project.createdAt}
       />
       <Nav />
       {project && <ProjectView project={project} />}

@@ -1,6 +1,6 @@
-import { serialize } from "next-mdx-remote/serialize";
 import { prisma } from "../../server/db/client";
 import { StepsSchema } from "../schema";
+import { EditorDataSchema } from "../../ui/editor/schema";
 
 export const renderProject = async (projectId: string) => {
   const project = await prisma.project.findFirst({
@@ -13,21 +13,21 @@ export const renderProject = async (projectId: string) => {
   }
 
   const psteps = StepsSchema.parse(project.buildSteps);
+  const body = EditorDataSchema.parse(project.body);
 
-  const renderedBody = await serialize(project.body, {});
   const steps = await Promise.all(
     psteps.map(async (step) => {
-      const renderedBody = await serialize(step.body, {});
+      const body = EditorDataSchema.parse(step.body);
       return {
         ...step,
-        body: renderedBody,
+        body,
       };
     })
   );
 
   return {
     ...project,
-    renderedBody,
+    body,
     steps,
   };
 };

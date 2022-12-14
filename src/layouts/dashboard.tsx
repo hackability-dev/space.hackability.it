@@ -10,18 +10,11 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FC, Fragment, ReactNode, useState } from "react";
+import { Fragment, useState, type FC, type ReactNode } from "react";
 import { Logo } from "../ui/logo";
 import { UserMenu } from "../ui/user-menu";
 
-const baseNav = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  {
-    name: "I miei progetti",
-    href: "/dashboard/projects",
-    icon: FolderIcon,
-  },
-];
+const baseNav = [{ name: "Dashboard", href: "/dashboard", icon: HomeIcon }];
 
 export const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,6 +31,13 @@ export const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
   }
 
   const navigation = [...baseNav];
+  if (user.isAuthor) {
+    navigation.push({
+      name: "I miei progetti",
+      href: "/dashboard/projects",
+      icon: FolderIcon,
+    });
+  }
   if (user.isAdmin) {
     navigation.push({
       name: "Admin",

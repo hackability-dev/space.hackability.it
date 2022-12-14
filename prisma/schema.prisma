@@ -50,6 +50,7 @@ model User {
   emailVerified DateTime?
   image         String?
   isAdmin       Boolean   @default(false)
+  isAuthor      Boolean   @default(false)
   accounts      Account[]
   sessions      Session[]
 }
@@ -69,7 +70,7 @@ model Project {
   name          String
   description   String
   tags          String[]
-  body          String
+  body          Json
   images        String[]
   license       String   @default("cc-ns-by-sa")
   draft         Boolean  @default(true)

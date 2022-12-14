@@ -1,10 +1,11 @@
 import { z } from "zod";
+import { EditorDataSchema } from "../ui/editor/schema";
 
 export const StepSchema = z.object({
   title: z.string().max(100),
   previewImage: z.string(),
   description: z.string(),
-  body: z.string(),
+  body: EditorDataSchema,
 });
 export const StepsSchema = StepSchema.array();
 
@@ -15,7 +16,7 @@ export const ProjectSchema = z.object({
   why: z.string(),
   what: z.string(),
   how: z.string(),
-  body: z.string(),
+  body: EditorDataSchema,
   previewImage: z.string(),
   buildSteps: StepSchema.array().default([]),
 });

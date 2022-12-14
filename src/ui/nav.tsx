@@ -1,10 +1,7 @@
+import { Popover } from "@headlessui/react";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Logo } from "./logo";
-import { Popover } from "@headlessui/react";
-import { signIn } from "next-auth/react";
-import { stat } from "fs";
 import { UserMenu } from "./user-menu";
 
 export function Nav() {

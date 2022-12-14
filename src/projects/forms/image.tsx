@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 import { Field } from "react-final-form";
 import { resizeCloudinaryImage } from "../../utils/cloudinary-image";
 
@@ -35,6 +35,7 @@ export const FeatureImageField = ({
                   <img
                     className="mx-auto w-24"
                     src={resizeCloudinaryImage(props.input.value, 100)}
+                    alt="image"
                   />
                 ) : (
                   <svg

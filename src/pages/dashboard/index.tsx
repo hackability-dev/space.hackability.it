@@ -41,7 +41,7 @@ const ListMyProject = () => {
       <ul className="mt-4 gap-8 md:grid md:grid-cols-3">
         {q.data.map((p) => (
           <li key={p.id}>
-            <Link href={`./admin/projects/${p.id}`}>
+            <Link href={`./dashboard/projects/${p.id}`}>
               <ProjectPreview project={p} />
             </Link>
           </li>

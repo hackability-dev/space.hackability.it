@@ -168,7 +168,7 @@ const ProjectsList = ({ projects, publish }: ProjectsListProps) => {
                         publish{" "}
                       </button>
                       <a
-                        href={`/dashboard/admin/projects/${project.id}/edit`}
+                        href={`/dashboard/projects/${project.id}/edit`}
                         className="link-primary link"
                       >
                         Edit

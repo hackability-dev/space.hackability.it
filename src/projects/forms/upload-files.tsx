@@ -1,4 +1,4 @@
-import { DragEventHandler, useRef, useState } from "react";
+import { useRef, useState, type DragEventHandler } from "react";
 import { useUpload } from "../../providers/upload";
 
 interface UploadFilesFieldsProps {

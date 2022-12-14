@@ -1,4 +1,4 @@
-import { InferGetStaticPropsType } from "next";
+import { type InferGetStaticPropsType } from "next";
 import Link from "next/link";
 import { ProjectPreview } from "../projects/ui/preview";
 import { prisma } from "../server/db/client";

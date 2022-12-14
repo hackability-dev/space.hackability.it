@@ -13,6 +13,7 @@ const config = {
   reactStrictMode: true,
   swcMinify: true,
   output: "standalone",
+  reactStrictMode: false,
   i18n: {
     locales: ["it"],
     defaultLocale: "it",

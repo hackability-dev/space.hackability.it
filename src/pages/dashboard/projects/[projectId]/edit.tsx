@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { DashboardLayout } from "../../../../layouts/dashboard";
 import { ProjectForm } from "../../../../projects/forms/project";
+import { ProjectSchema } from "../../../../projects/schema";
 import { ProjectView } from "../../../../projects/ui/project-view";
 import { trpc } from "../../../../utils/trpc";
 
@@ -16,7 +17,7 @@ const EditProjectPage = () => {
     data: project,
     isLoading,
     error,
-  } = trpc.project.getMyProject.useQuery({ projectId });
+  } = trpc.project.getProject.useQuery({ projectId });
 
   if (isLoading) {
     return <p>loading ...</p>;
@@ -53,9 +54,9 @@ const EditProjectPage = () => {
 
       <ProjectForm
         projectId={projectId}
-        initialValues={project}
+        initialValues={ProjectSchema.parse(project)}
         onSubmit={async (project) => {
-          const res = await saveProject({
+          await saveProject({
             project: project,
             projectId: projectId,
           });

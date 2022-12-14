@@ -1,20 +1,18 @@
 import deepEqual from "fast-deep-equal";
 import arrayMutators from "final-form-arrays";
-import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { Field, Form } from "react-final-form";
 import { FieldArray } from "react-final-form-arrays";
-import { z } from "zod";
+import type { z } from "zod";
 import { formatBytes } from "../../utils/bytes";
 import { cloudinaryUploadImage } from "../../utils/cloudinary";
 import { trpc } from "../../utils/trpc";
 import { validateZodSchema } from "../../utils/validate-zod";
 import { ProjectSchema } from "../schema";
+import EditorField from "./editor";
 import { CharCounter, ErrOrDescription } from "./forms-utils";
 import { FeatureImageField } from "./image";
 import { UploadFilesFields } from "./upload-files";
-
-const EditorField = dynamic(() => import("./editor"), { ssr: false });
 
 type ProjectValue = z.TypeOf<typeof ProjectSchema>;
 
@@ -36,12 +34,11 @@ export const ProjectForm = ({
 
   const uploadImage = useCallback(
     (file: Blob) => {
-      console.log("calling");
       return cloudinaryUploadImage(file, () =>
         getUploadSignature({ projectId })
       );
     },
-    [getUploadSignature]
+    [getUploadSignature, projectId]
   );
 
   return (
@@ -61,7 +58,7 @@ export const ProjectForm = ({
       mutators={{
         ...arrayMutators,
       }}
-      render={({ handleSubmit, errors, valid, values }) => (
+      render={({ handleSubmit, valid }) => (
         <form
           onSubmit={handleSubmit}
           className="space-y-8 divide-y divide-gray-200"
@@ -260,7 +257,7 @@ export const ProjectForm = ({
                   video
                 </p>
               </div>
-              <div className="mt-4 h-80">
+              <div className="mt-4">
                 <EditorField name="body" uploadImage={uploadImage} />
               </div>
             </div>
@@ -325,12 +322,9 @@ export const ProjectForm = ({
 };
 
 const ProjectFileUpload = ({ projectId }: { projectId: string }) => {
-  const {
-    data: files,
-    error,
-    isLoading,
-    refetch,
-  } = trpc.files.getProjectFiles.useQuery({ projectId });
+  const { data: files, refetch } = trpc.files.getProjectFiles.useQuery({
+    projectId,
+  });
 
   const { mutateAsync: getDownloadUrl } =
     trpc.files.getDownloadFileUrl.useMutation();
@@ -350,9 +344,9 @@ const ProjectFileUpload = ({ projectId }: { projectId: string }) => {
   const deleteFile = useCallback(
     async (projectId: string, fileName: string) => {
       await deleteFileMut({ projectId, fileName });
-      refetch();
+      await refetch();
     },
-    [deleteFileMut]
+    [deleteFileMut, refetch]
   );
 
   return (
@@ -532,7 +526,7 @@ const StepForm = ({ name, uploadImage, remove }: StepFormProps) => {
           </div>
         )}
       />
-      <div className="mt-4 h-80">
+      <div className="mt-4">
         <EditorField name={`${name}.body`} uploadImage={uploadImage} />
       </div>
       <div className="mt-2 flex justify-end">

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { type z } from "zod";
 import { validateZodSchema } from "../../utils/validate-zod";
 import { CreateProjectSchema } from "../schema";
 import { CharCounter, ErrOrDescription } from "../ui/forms-utils";

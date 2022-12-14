@@ -9,10 +9,12 @@ declare module "next-auth" {
       id: string;
       email: string;
       isAdmin: boolean;
+      isAuthor: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
     isAdmin: boolean;
+    isAuthor: boolean;
   }
 }

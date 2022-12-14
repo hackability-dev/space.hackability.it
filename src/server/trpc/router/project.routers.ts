@@ -18,6 +18,9 @@ const withProject = t.middleware(async ({ ctx, next, rawInput }) => {
   }
 
   const user = ctx.session.user;
+  if (!(user.isAdmin || user.isAuthor)) {
+    throw new TRPCError({ code: "BAD_REQUEST" });
+  }
 
   const project = await ctx.prisma.project.findFirst({
     where: {
@@ -27,7 +30,7 @@ const withProject = t.middleware(async ({ ctx, next, rawInput }) => {
   });
 
   if (!project) {
-    throw new TRPCError({ code: "BAD_REQUEST" });
+    throw new TRPCError({ code: "NOT_FOUND" });
   }
 
   return next({
@@ -109,22 +112,16 @@ export const projectsRouter = t.router({
         ...baseInput,
       })
     )
-    .query(async ({ ctx, input }) => {
-      const project = await renderProject(input.projectId);
-      if (!project || project.author !== ctx.session.user.email) {
-        return null;
-      }
-      return {
-        ...project,
-      };
+    .query(async ({ input }) => {
+      return await renderProject(input.projectId);
     }),
-  getMyProject: pAuthor
+  getProject: pAuthor
     .input(
       z.object({
         ...baseInput,
       })
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx }) => {
       const project = ctx.project;
       return {
         ...project,
@@ -139,24 +136,10 @@ export const projectsRouter = t.router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const project = await ctx.prisma.project.findFirst({
-        select: {
-          id: true,
-        },
-        where: {
-          id: input.projectId,
-          author: ctx.session.user.email,
-        },
-      });
-      if (!project) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-        });
-      }
       return await ctx.prisma.project.update({
         data: input.project,
         where: {
-          id: input.projectId,
+          id: ctx.project.id,
         },
       });
     }),

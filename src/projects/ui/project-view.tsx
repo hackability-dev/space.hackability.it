@@ -1,18 +1,11 @@
-import { MDXRemote } from "next-mdx-remote";
+import { type EditorData } from "../../ui/editor/schema";
 import { resizeCloudinaryImage } from "../../utils/cloudinary-image";
-import { RenderedProject } from "../server/render";
+import type { RenderedProject } from "../server/render";
 import { ProjectFiles } from "./project-files";
 
 interface ProjectViewProps {
   project: RenderedProject;
 }
-
-const components: any = {
-  img: ({ alt, src }: { alt: string; src: string }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img alt={alt} src={resizeCloudinaryImage(src, 1200)} className="m-auto" />
-  ),
-};
 
 export const ProjectView = ({ project }: ProjectViewProps) => {
   return (
@@ -148,7 +141,7 @@ export const ProjectView = ({ project }: ProjectViewProps) => {
           <p>{project.how}</p>
         </div>
         <div className="prose-lg prose-indigo prose mx-auto mt-6 text-gray-500">
-          <MDXRemote {...project.renderedBody} components={components} />
+          <RenderBlocks blocks={project.body.blocks} />
         </div>
       </div>
 
@@ -186,9 +179,69 @@ const ProjectStepView = ({
           {step.description}
         </p>
         <div className="prose-lg prose-indigo prose mx-auto mt-6 text-gray-500">
-          <MDXRemote {...step.body} components={components} />
+          <RenderBlocks blocks={step.body.blocks} />
         </div>
       </div>
     </div>
   );
+};
+
+const RenderBlocks = ({ blocks }: { blocks: EditorData["blocks"] }) => {
+  return (
+    <div>
+      {blocks.map((block) => (
+        <RenderBlock key={block.id} {...block} />
+      ))}
+    </div>
+  );
+};
+
+const RenderBlock = (block: EditorData["blocks"][number]) => {
+  switch (block.type) {
+    case "paragraph":
+      return <p>{block.data.text}</p>;
+    case "header":
+      switch (block.data.level) {
+        case 1:
+          return <h1>{block.data.text}</h1>;
+        case 2:
+          return <h2>{block.data.text}</h2>;
+        case 3:
+          return <h3>{block.data.text}</h3>;
+        case 4:
+          return <h4>{block.data.text}</h4>;
+        case 5:
+          return <h5>{block.data.text}</h5>;
+        case 6:
+          return <h6>{block.data.text}</h6>;
+      }
+    case "image":
+      return <img src={block.data.file.url} alt={block.data.caption} />;
+    case "embed":
+      return (
+        <embed
+          src={block.data.embed}
+          width={block.data.width}
+          height={block.data.height}
+        />
+      );
+    case "list":
+      if (block.data.style === "ordered") {
+        return (
+          <ol>
+            {block.data.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        );
+      }
+      return (
+        <ul>
+          {block.data.items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      );
+  }
+  return <pre>{JSON.stringify(block, null, 2)}</pre>;
 };

@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import * as t from "../trpc";
 
-const adminMiddleware = t.middleware(async ({ ctx, next, rawInput }) => {
+const adminMiddleware = t.middleware(async ({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user || !ctx.session.user.isAdmin) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
