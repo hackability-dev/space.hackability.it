@@ -8,7 +8,15 @@ import { trpc } from "../../../utils/trpc";
 const ProjectsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data, isLoading, error, refetch } =
-    trpc.admin.getAllProjects.useQuery({ skip: 0, take: 50 });
+    trpc.author.getMyProjects.useQuery({ skip: 0, take: 50 });
+
+  const { mutateAsync: publishProject } =
+    trpc.project.publishProject.useMutation();
+
+  const handlePublish = async (projectId: string) => {
+    await publishProject({ projectId });
+    await refetch();
+  };
 
   if (isLoading) {
     return <p>loading ...</p>;
@@ -27,9 +35,8 @@ const ProjectsPage = () => {
         <div className="">
           <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
-              <h1 className="text-xl font-semibold text-gray-900">
-                Tutti i Progetti
-              </h1>
+              <h1 className="text-xl font-semibold text-gray-900">Progetti</h1>
+              <p className="mt-2 text-sm text-gray-700">Ecco i miei progetti</p>
             </div>
             <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
               <button
@@ -42,6 +49,7 @@ const ProjectsPage = () => {
             </div>
           </div>
         </div>
+        <ProjectsList projects={data!} publish={handlePublish} />
       </div>
     </DashboardLayout>
   );
@@ -160,7 +168,7 @@ const ProjectsList = ({ projects, publish }: ProjectsListProps) => {
                         publish{" "}
                       </button>
                       <a
-                        href={`./projects/${project.id}/edit`}
+                        href={`/dashboard/admin/projects/${project.id}/edit`}
                         className="link-primary link"
                       >
                         Edit

@@ -22,7 +22,7 @@ const withProject = t.middleware(async ({ ctx, next, rawInput }) => {
   const project = await ctx.prisma.project.findFirst({
     where: {
       id: result.data.projectId,
-      author: user.email,
+      author: user.isAdmin ? undefined : user.email,
     },
   });
 

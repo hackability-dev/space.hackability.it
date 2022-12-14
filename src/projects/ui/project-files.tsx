@@ -18,6 +18,14 @@ export const ProjectFiles = ({ projectId }: { projectId: string }) => {
     [getDownloadUrl]
   );
 
+  if (!files) {
+    return null;
+  }
+
+  if (files.length === 0) {
+    return null;
+  }
+
   return (
     <ProjectFilesTable
       files={files?.map((f) => ({
@@ -68,7 +76,7 @@ const ProjectFilesTable = ({
               <td>{file.type}</td>
               <td className="flex justify-end">
                 <button
-                  className="link link-primary"
+                  className="link-primary link"
                   onClick={() => downloadFile(projectId, file.filename)}
                 >
                   download

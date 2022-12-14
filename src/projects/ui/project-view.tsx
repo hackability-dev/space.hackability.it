@@ -139,7 +139,7 @@ export const ProjectView = ({ project }: ProjectViewProps) => {
             {project.description}
           </p>
         </div>
-        <div className="prose prose-indigo prose-lg mx-auto mt-6 text-gray-500">
+        <div className="prose-lg prose-indigo prose mx-auto mt-6 text-gray-500">
           <h3>Che problema risolve?</h3>
           <p>{project.why}</p>
           <h3>Come funziona?</h3>
@@ -147,7 +147,7 @@ export const ProjectView = ({ project }: ProjectViewProps) => {
           <h3>Come è stato fatto?</h3>
           <p>{project.how}</p>
         </div>
-        <div className="prose prose-indigo prose-lg mx-auto mt-6 text-gray-500">
+        <div className="prose-lg prose-indigo prose mx-auto mt-6 text-gray-500">
           <MDXRemote {...project.renderedBody} components={components} />
         </div>
       </div>
@@ -172,18 +172,20 @@ const ProjectStepView = ({
   return (
     <div className="mx-auto mt-2 max-w-prose text-lg">
       <div className="mx-auto max-w-prose text-lg">
-        <img
-          className="m-auto my-10"
-          src={resizeCloudinaryImage(step.previewImage, 800)}
-          alt={step.title}
-        />
+        {step.previewImage && (
+          <img
+            className="m-auto my-10"
+            src={resizeCloudinaryImage(step.previewImage, 800)}
+            alt={step.title}
+          />
+        )}
         <h2 className="mt-2 block text-3xl font-extrabold leading-8 tracking-tight text-gray-900 sm:text-4xl">
           <span>{step.title}</span>
         </h2>
         <p className="mt-8 text-xl leading-8 text-gray-500">
           {step.description}
         </p>
-        <div className="prose prose-indigo prose-lg mx-auto mt-6 text-gray-500">
+        <div className="prose-lg prose-indigo prose mx-auto mt-6 text-gray-500">
           <MDXRemote {...step.body} components={components} />
         </div>
       </div>

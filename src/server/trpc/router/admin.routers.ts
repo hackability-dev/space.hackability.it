@@ -30,9 +30,6 @@ export const adminRouter = t.router({
     )
     .query(async ({ ctx, input }) => {
       return ctx.prisma.project.findMany({
-        where: {
-          author: ctx.session.user.email,
-        },
         select: {
           id: true,
           author: true,

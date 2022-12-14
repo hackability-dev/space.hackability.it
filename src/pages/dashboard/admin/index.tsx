@@ -8,7 +8,7 @@ import { trpc } from "../../../utils/trpc";
 const ProjectsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data, isLoading, error, refetch } =
-    trpc.author.getMyProjects.useQuery({ skip: 0, take: 50 });
+    trpc.admin.getAllProjects.useQuery({ skip: 0, take: 50 });
 
   const { mutateAsync: publishProject } =
     trpc.project.publishProject.useMutation();
