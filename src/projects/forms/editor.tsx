@@ -12,13 +12,15 @@ const EditorField = ({ name, uploadImage }: EditorFieldProps) => {
       name={name}
       render={(props) => {
         return (
-          <Editor
-            initialValue={props.input.value || {}}
-            onChange={async (data) => {
-              props.input.onChange(data);
-            }}
-            uploadImage={uploadImage}
-          />
+          <>
+            <Editor
+              initialValue={props.input.value || {}}
+              onChange={(data) => {
+                props.input.onChange(data);
+              }}
+              uploadImage={uploadImage}
+            />
+          </>
         );
       }}
     />

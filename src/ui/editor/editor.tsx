@@ -1,6 +1,7 @@
 import EditorJS from "@editorjs/editorjs";
 import cuid from "cuid";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { type EditorData, EditorDataSchema } from "./schema";
 
 const Editor = ({
   uploadImage,
@@ -8,21 +9,26 @@ const Editor = ({
   initialValue,
 }: {
   uploadImage: (file: Blob) => Promise<string>;
-  onChange: (data: any) => Promise<void>;
+  onChange: (data: EditorData) => void | Promise<void>;
   initialValue: any;
 }) => {
   const [id] = useState(cuid());
+  const ref = useRef<EditorJS | null>();
 
   useEffect(() => {
-    const { editor } = initEditor(id, initialValue, onChange, uploadImage);
+    if (!ref.current) {
+      const { editor } = initEditor(id, initialValue, onChange, uploadImage);
+      ref.current = editor;
+    }
     () => {
-      editor.clear();
-      editor.destroy();
+      ref.current?.clear();
+      ref.current?.destroy();
+      ref.current = null;
     };
   });
 
   return (
-    <div className="prose-sm prose w-full min-w-full rounded  bg-gray-100 p-0 py-5 shadow-lg  prose-img:m-0">
+    <div className="prose-sm prose w-full min-w-full rounded p-0 py-5 shadow-lg  prose-img:m-0">
       <div className="w-auto" id={id}></div>
     </div>
   );
@@ -32,8 +38,8 @@ export default Editor;
 
 const initEditor = (
   id: string,
-  initialValue: any,
-  onChange: (data: any) => Promise<void>,
+  initialValue: EditorData,
+  onChange: (data: EditorData) => void | Promise<void>,
   uploadImage: (file: Blob) => Promise<string>
 ) => {
   const editor = new EditorJS({
@@ -42,7 +48,7 @@ const initEditor = (
     data: initialValue,
     onChange: async (api) => {
       const data = await api.saver.save();
-      onChange(data);
+      onChange(EditorDataSchema.parse(data));
     },
     tools: {
       header: require("@editorjs/header"),

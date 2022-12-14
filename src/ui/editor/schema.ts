@@ -42,7 +42,7 @@ const TableSchema = z.object({
   id: z.string(),
   type: z.literal("table"),
   data: z.object({
-    withHeader: z.boolean(),
+    withHeadings: z.boolean(),
     content: z.array(z.array(z.string())),
   }),
 });
@@ -110,8 +110,8 @@ export const BlocksSchema = z.discriminatedUnion("type", [
 ]);
 
 export const EditorDataSchema = z.object({
-  time: z.number().int(),
-  version: z.string(),
+  time: z.number().int().optional(),
+  version: z.string().optional(),
   blocks: z.array(BlocksSchema),
 });
 
