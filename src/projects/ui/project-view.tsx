@@ -218,13 +218,19 @@ const RenderBlock = (block: EditorData["blocks"][number]) => {
     case "image":
       return <img src={block.data.file.url} alt={block.data.caption} />;
     case "embed":
-      return (
-        <embed
-          src={block.data.embed}
-          width={block.data.width}
-          height={block.data.height}
-        />
-      );
+      if (block.data.service === "youtube") {
+        return <embed className="aspect-video w-full" src={block.data.embed} />;
+      } else {
+        <embed className="mx-auto aspect-video" src={block.data.embed} />;
+        return (
+          <embed
+            className="m-auto"
+            src={block.data.embed}
+            height={block.data.height}
+            width={block.data.width}
+          />
+        );
+      }
     case "delimiter":
       return <hr />;
     case "quote":
