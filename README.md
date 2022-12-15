@@ -11,10 +11,10 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h1>Open Source Wrapped</h1>
+  <h1>Space Hackability</h1>
   
   <a href="https://github.com/hackability-dev/space.hackability.it">
-    <img src="https://github.com/hackability-dev/space.hackability.it/main/public/hackability.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/hackability-dev/space.hackability.it/blob/main/public/hackability.png?raw=true" alt="Logo" width="80" height="80">
   </a>
 
   <p align="center">
