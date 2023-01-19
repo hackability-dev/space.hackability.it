@@ -1,8 +1,10 @@
 # Install dependencies only when needed
-FROM node:18-alpine3.16 AS deps
+FROM node:18-alpine3.16 AS base
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 RUN apk add --no-cache openssl1.1-compat-dev
+
+FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --force
@@ -14,7 +16,7 @@ RUN npx prisma generate
 # RUN npm ci
 
 # Rebuild the source code only when needed
-FROM node:18-alpine3.16 AS builder
+FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -45,7 +47,7 @@ ARG KANNON_HOST=xxx.xxx.xx:443
 RUN SKIP_ENV_VALIDATION=1 npm run build
 
 # Production image, copy all the files and run next
-FROM node:18-alpine3.16 AS runner
+FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
