@@ -21,6 +21,53 @@ const adminMiddleware = t.middleware(async ({ ctx, next }) => {
 const pAdmin = t.publicProcedure.use(adminMiddleware);
 
 export const adminRouter = t.router({
+  setAdmin: pAdmin
+    .input(
+      z.object({
+        id: z.string(),
+        isAdmin: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          isAdmin: input.isAdmin,
+        },
+      });
+    }),
+  setAuthor: pAdmin
+    .input(
+      z.object({
+        id: z.string(),
+        isAuthor: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.prisma.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          isAuthor: input.isAuthor,
+        },
+      });
+    }),
+  getUsers: pAdmin
+    .input(
+      z.object({
+        skip: z.number(),
+        take: z.number(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      return ctx.prisma.user.findMany({
+        skip: input.skip,
+        take: input.take,
+      });
+    }),
   getAllProjects: pAdmin
     .input(
       z.object({
