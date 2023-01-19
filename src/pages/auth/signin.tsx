@@ -1,9 +1,9 @@
 // import { BlogIcon } from "components/icon";
+import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { InferGetServerSidePropsType } from "next";
 import { getProviders, signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { faLinkedin, faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Props = InferGetServerSidePropsType<typeof getServerSideProps>;
 
@@ -42,7 +42,7 @@ export default function SignIn({ providers }: Props) {
   const error = router.query.error as SignInErrorTypes | undefined;
 
   if (session.status === "authenticated") {
-    const url = (router.query.callbackUrl as string) || "/";
+    const url = (router.query.callbackUrl as string) || "/dashboard";
     router.push(url);
     return <p>loading</p>;
   }
@@ -72,7 +72,12 @@ export default function SignIn({ providers }: Props) {
               <div className="mt-2 grid grid-cols-1 gap-3">
                 <div>
                   <button
-                    onClick={() => signIn(providers.google.id)}
+                    onClick={() =>
+                      signIn(providers.google.id, {
+                        redirect: true,
+                        callbackUrl: "/dashboard",
+                      })
+                    }
                     className="inline-flex w-full justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-500 shadow-sm hover:bg-gray-50"
                   >
                     <FontAwesomeIcon

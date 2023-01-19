@@ -48,6 +48,7 @@
     "fast-deep-equal": "^3.1.3",
     "final-form": "^4.20.7",
     "final-form-arrays": "^3.0.2",
+    "kannon.js": "^0.3.0",
     "next": "13.0.2",
     "next-auth": "^4.18.3",
     "next-mdx-remote": "^4.2.0",

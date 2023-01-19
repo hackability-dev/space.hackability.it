@@ -3,6 +3,21 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db/client";
+import { EmailSender } from "../../../server/kannon";
+import { KannonCli } from "kannon.js";
+
+const kannon = new KannonCli(
+  env.KANNON_DOMAIN,
+  env.KANNON_KEY,
+  {
+    alias: env.KANNON_ALIAS,
+    email: env.KANNON_EMAIL,
+  },
+  {
+    host: env.KANNON_HOST,
+  }
+);
+const sender = new EmailSender(kannon);
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -25,6 +40,11 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
   ],
+  events: {
+    createUser: async ({ user }) => {
+      await sender.sendWellcomeUserEmail(user.email, user.name);
+    },
+  },
 };
 
 export default NextAuth(authOptions);

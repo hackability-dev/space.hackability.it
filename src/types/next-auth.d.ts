@@ -16,5 +16,7 @@ declare module "next-auth" {
   interface User {
     isAdmin: boolean;
     isAuthor: boolean;
+    email: string;
+    name: string;
   }
 }
