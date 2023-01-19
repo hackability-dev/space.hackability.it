@@ -5,6 +5,7 @@ import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db/client";
 import { EmailSender } from "../../../server/kannon";
 import { KannonCli } from "kannon.js";
+import { TelegramNotifier } from "../../../server/bot";
 
 const kannon = new KannonCli(
   env.KANNON_DOMAIN,
@@ -18,6 +19,11 @@ const kannon = new KannonCli(
   }
 );
 const sender = new EmailSender(kannon);
+
+export const telegramNotifier = new TelegramNotifier(
+  env.TELEGRAM_TOKEN,
+  env.TELEGRAM_ADMIN_CHAT_ID
+);
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -43,6 +49,7 @@ export const authOptions: NextAuthOptions = {
   events: {
     createUser: async ({ user }) => {
       await sender.sendWellcomeUserEmail(user.email, user.name);
+      await telegramNotifier.notifyUserCreated(user);
     },
   },
 };

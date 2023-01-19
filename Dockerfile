@@ -44,6 +44,9 @@ ARG KANNON_DOMAIN=xxx
 ARG KANNON_EMAIL=email@hackability.it
 ARG KANNON_ALIAS=Sender
 ARG KANNON_HOST=xxx.xxx.xx:443
+ARG TELEGRAM_ADMIN_CHAT_ID=xxxx
+ARG TELEGRAM_TOKEN=xxxx
+
 RUN SKIP_ENV_VALIDATION=1 npm run build
 
 # Production image, copy all the files and run next

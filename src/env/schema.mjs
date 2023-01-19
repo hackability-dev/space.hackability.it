@@ -35,6 +35,10 @@ export const serverSchema = z.object({
   KANNON_EMAIL: z.string().email(),
   KANNON_ALIAS: z.string(),
   KANNON_HOST: z.string(),
+
+  // telegram
+  TELEGRAM_TOKEN: z.string(),
+  TELEGRAM_ADMIN_CHAT_ID: z.string(),
 });
 
 /**
@@ -66,9 +70,15 @@ export const clientEnv = {
   CLOUDINARY_KEY: process.env.CLOUDINARY_KEY,
   CLOUDINARY_SECRET: process.env.CLOUDINARY_SECRET,
   CLOUDINARY_NAME: process.env.CLOUDINARY_NAME,
+
+  // kannon
   KANNON_KEY: process.env.KANNON_KEY,
   KANNON_DOMAIN: process.env.KANNON_DOMAIN,
   KANNON_EMAIL: process.env.KANNON_EMAIL,
   KANNON_ALIAS: process.env.KANNON_ALIAS,
   KANNON_HOST: process.env.KANNON_HOST,
+
+  // telegram
+  TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN,
+  TELEGRAM_ADMIN_CHAT_ID: process.env.TELEGRAM_ADMIN_CHAT_ID,
 };

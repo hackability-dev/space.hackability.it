@@ -10,7 +10,7 @@ import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useState, type FC, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type FC, type ReactNode } from "react";
 import { Logo } from "../ui/logo";
 import { UserMenu } from "../ui/user-menu";
 
@@ -20,9 +20,15 @@ export const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+  useEffect(() => {
+    console.log("status", status);
+    if (status === "unauthenticated") {
+      router.push("/");
+    }
+  }, [router, status]);
 
   if (status === "loading") return <div>Loading...</div>;
-  if (status === "unauthenticated") return <div>Not logged in</div>;
+  if (status === "unauthenticated") return <div>Loading...</div>;
 
   const user = session!.user!;
 
