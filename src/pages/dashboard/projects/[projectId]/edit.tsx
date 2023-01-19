@@ -1,5 +1,5 @@
 import { Dialog } from "@headlessui/react";
-import { XMarkIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { DashboardLayout } from "../../../../layouts/dashboard";
@@ -34,16 +34,16 @@ const EditProjectPage = () => {
   return (
     <DashboardLayout>
       <div className="flex justify-between">
-        <h1 className="text-4xl font-semibold text-gray-600">
+        <h1 className="text-2xl font-semibold text-gray-600">
           Modifica il tuo progetto
         </h1>
         <button
           onClick={async () => {
             setShowModal(true);
           }}
-          className="modal-button btn"
+          className="modal-button btn-ghost btn-circle btn"
         >
-          Preview
+          <EyeIcon className="h-6" />
         </button>
       </div>
       <ProjectPreviewModal
