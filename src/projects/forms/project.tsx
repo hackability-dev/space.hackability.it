@@ -1,16 +1,16 @@
 import deepEqual from "fast-deep-equal";
 import arrayMutators from "final-form-arrays";
 import { useCallback, useState } from "react";
-import { Field, Form } from "react-final-form";
+import { Form } from "react-final-form";
 import { FieldArray } from "react-final-form-arrays";
 import type { z } from "zod";
+import { InputField } from "../../forms/input-field";
 import { formatBytes } from "../../utils/bytes";
 import { cloudinaryUploadImage } from "../../utils/cloudinary";
 import { trpc } from "../../utils/trpc";
 import { validateZodSchema } from "../../utils/validate-zod";
 import { ProjectSchema } from "../schema";
 import EditorField from "./editor";
-import { CharCounter, ErrOrDescription } from "./forms-utils";
 import { FeatureImageField } from "./image";
 import { UploadFilesFields } from "./upload-files";
 
@@ -58,78 +58,21 @@ export const ProjectForm = ({
       mutators={{
         ...arrayMutators,
       }}
-      render={({ handleSubmit, valid }) => (
+      render={({ handleSubmit, valid, submitting }) => (
         <form
           onSubmit={handleSubmit}
           className="space-y-8 divide-y divide-gray-200"
         >
           <div className="space-y-8 divide-y divide-gray-200">
             <div>
-              <div>
-                <h3 className="mt-6 text-lg font-medium leading-6 text-gray-900">
-                  Informazioni generali sul progetto
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Use a permanent address where you can receive mail.
-                </p>
-              </div>
-              <div className="mt-6 grid grid-cols-1 gap-y-6">
-                <Field<string>
-                  name="name"
-                  id="name"
-                  render={({ input, meta }) => (
-                    <div className="sm:col-span-4">
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Nome del progetto
-                      </label>
-                      <div className="mt-1 flex rounded-md shadow-sm">
-                        <input
-                          {...input}
-                          type="text"
-                          autoComplete="name"
-                          className="block w-full min-w-0 flex-1 rounded-md border-gray-300  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <ErrOrDescription
-                          meta={meta}
-                          description="Titolo del progetto"
-                        />
-                        <CharCounter max={50} current={input.value.length} />
-                      </div>
-                    </div>
-                  )}
-                ></Field>
-                <Field<string>
-                  id="description"
+              <div className="mt-6 flex flex-col gap-y-6">
+                <InputField name="name" label="Titolo del progetto" max={50} />
+                <InputField
                   name="description"
-                  render={({ input, meta }) => (
-                    <div className="sm:col-span-6">
-                      <label
-                        htmlFor="description"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Descrizione del progetto
-                      </label>
-                      <div className="mt-1">
-                        <textarea
-                          {...input}
-                          rows={3}
-                          className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <ErrOrDescription
-                          meta={meta}
-                          description=" Scrivi una breve presentazione del tuo progetto"
-                        />
-                        <CharCounter max={400} current={input.value.length} />
-                      </div>
-                    </div>
-                  )}
+                  label="Descrizione del progetto"
+                  help="Verrà visualizzata come anteprima"
+                  max={400}
+                  numRows={3}
                 />
 
                 <div className="sm:col-span-6">
@@ -158,91 +101,29 @@ export const ProjectForm = ({
                   del perchè del tuo progetto.
                 </p>
               </div>
-              <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                <Field<string>
-                  id="why"
+              <div className="flex flex-col gap-4">
+                <InputField
                   name="why"
-                  render={({ input, meta }) => (
-                    <div className="sm:col-span-6">
-                      <label
-                        htmlFor="why"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Perchè hai sviluppato questo progetto?
-                      </label>
-                      <div className="mt-1">
-                        <textarea
-                          {...input}
-                          rows={3}
-                          className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <ErrOrDescription
-                          meta={meta}
-                          description="Descrivi il bisgno"
-                        />
-                        <CharCounter max={400} current={input.value.length} />
-                      </div>
-                    </div>
-                  )}
-                />
-                <Field<string>
-                  id="what"
-                  name="what"
-                  render={({ input, meta }) => (
-                    <div className="sm:col-span-6">
-                      <label
-                        htmlFor="what"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Cosa fa?
-                      </label>
-                      <div className="mt-1">
-                        <textarea
-                          {...input}
-                          rows={3}
-                          className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <ErrOrDescription
-                          meta={meta}
-                          description="Descrivi come il bisogno viene risolto"
-                        />
-                        <CharCounter max={400} current={input.value.length} />
-                      </div>
-                    </div>
-                  )}
+                  label="Perchè hai sviluppato questo progetto?"
+                  help="Per chi è stato sviluppato il progetto? Qual è il suo bisogno?"
+                  max={400}
+                  numRows={3}
                 />
 
-                <Field<string>
-                  id="how"
+                <InputField
+                  name="what"
+                  label="Cosa fa?"
+                  help="In che modo il bisogno è stato risolto?"
+                  max={400}
+                  numRows={3}
+                />
+
+                <InputField
                   name="how"
-                  render={({ input, meta }) => (
-                    <div className="sm:col-span-6">
-                      <label
-                        htmlFor="how"
-                        className="block text-sm font-medium text-gray-700"
-                      >
-                        Descrizione del progetto
-                      </label>
-                      <div className="mt-1">
-                        <textarea
-                          {...input}
-                          rows={3}
-                          className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        />
-                      </div>
-                      <div className="flex justify-between">
-                        <ErrOrDescription
-                          meta={meta}
-                          description="diy, hacking, arduino, 3D printed, casted, etc."
-                        />
-                        <CharCounter max={400} current={input.value.length} />
-                      </div>
-                    </div>
-                  )}
+                  label="Come è stato fatto?"
+                  help="Che tecnologie servono per riprodurlo? Diy, hacking, arduino, 3D printed, casted, etc."
+                  max={400}
+                  numRows={3}
                 />
               </div>
             </div>
@@ -282,6 +163,7 @@ export const ProjectForm = ({
                     {fields.map((name, index) => (
                       <div className="mt-4" key={index}>
                         <StepForm
+                          index={index}
                           name={name}
                           remove={() => fields.remove(index)}
                           uploadImage={uploadImage}
@@ -308,10 +190,10 @@ export const ProjectForm = ({
             <div className="flex justify-end">
               <button
                 type="submit"
-                disabled={!valid || isSubmitting}
-                className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-indigo-400"
+                disabled={!valid || submitting}
+                className="btn-primary btn-sm btn"
               >
-                {isSubmitting ? "Sto salvando..." : "Salva"}
+                {submitting ? "Sto salvando..." : "Salva"}
               </button>
             </div>
           </div>
@@ -449,42 +331,23 @@ const ProjectsFileList = ({
 
 interface StepFormProps {
   name: string;
+  index: number;
   uploadImage: (file: Blob) => Promise<string>;
   remove: () => void;
 }
 
-const StepForm = ({ name, uploadImage, remove }: StepFormProps) => {
+const StepForm = ({ name, uploadImage, remove, index }: StepFormProps) => {
   return (
-    <div className="rounded-lg bg-gray-200 p-4 shadow-lg">
-      <Field<string>
-        name={`${name}.title`}
-        id={`${name}.title`}
-        render={({ input, meta }) => (
-          <div className="sm:col-span-4">
-            <label
-              htmlFor={`${name}.title`}
-              className="block text-sm font-medium text-gray-700"
-            >
-              Titolo
-            </label>
-            <div className="mt-1 flex rounded-md shadow-sm">
-              <input
-                {...input}
-                type="text"
-                autoComplete="name"
-                className="block w-full min-w-0 flex-1 rounded-md border-gray-300  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div className="flex justify-between">
-              <ErrOrDescription
-                meta={meta}
-                description="Dai un titolo al passo"
-              />
-              <CharCounter max={50} current={input.value.length} />
-            </div>
-          </div>
-        )}
-      ></Field>
+    <div className="rounded-lg">
+      <div className="relative">
+        <div className="absolute inset-x-0 bottom-0 h-1/2 border-t border-purple-400"></div>
+        <div className="relative text-center">
+          <span className="w-auto bg-white px-4 text-lg text-primary">
+            Step #{index + 1}
+          </span>
+        </div>
+      </div>
+      <InputField name={`${name}.title`} label="Titolo" max={50} />
       <div className="sm:col-span-6">
         <label
           htmlFor="previewImage"
@@ -498,34 +361,15 @@ const StepForm = ({ name, uploadImage, remove }: StepFormProps) => {
           uploadImage={uploadImage}
         />
       </div>
-      <Field<string>
-        id={`${name}.description`}
+
+      <InputField
         name={`${name}.description`}
-        render={({ input, meta }) => (
-          <div className="sm:col-span-6">
-            <label
-              htmlFor={`${name}.description`}
-              className="block text-sm font-medium text-gray-700"
-            >
-              Info
-            </label>
-            <div className="mt-1">
-              <textarea
-                {...input}
-                rows={3}
-                className="block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div className="flex justify-between">
-              <ErrOrDescription
-                meta={meta}
-                description="Descrivi brevemente lo step"
-              />
-              <CharCounter max={400} current={input.value.length} />
-            </div>
-          </div>
-        )}
+        label="Info"
+        help="Descrivi brevemente lo step"
+        max={400}
+        numRows={4}
       />
+
       <div className="mt-4">
         <EditorField name={`${name}.body`} uploadImage={uploadImage} />
       </div>

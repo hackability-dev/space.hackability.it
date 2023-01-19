@@ -30,7 +30,7 @@ const Editor = ({
   });
 
   return (
-    <div className="prose-sm prose w-full min-w-full rounded p-0 py-5 shadow-lg  prose-img:m-0">
+    <div className="prose prose-sm w-full min-w-full rounded p-0 py-5 ring-1 ring-gray-200 prose-img:m-0">
       <div className="w-auto" id={id}></div>
     </div>
   );
