@@ -1,7 +1,8 @@
 # Install dependencies only when needed
-FROM node:18-alpine AS deps
+FROM node:18-alpine3.16 AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache openssl1.1-compat-dev
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --force
@@ -13,7 +14,7 @@ RUN npx prisma generate
 # RUN npm ci
 
 # Rebuild the source code only when needed
-FROM node:18-alpine AS builder
+FROM node:18-alpine3.16 AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -23,24 +24,10 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-ARG DATABASE_URL
-ARG NEXTAUTH_SECRET=xx
-ARG NEXTAUTH_URL=http://localhost:3000
-ARG GOOGLE_CLIENT_ID=xx
-ARG GOOGLE_CLIENT_SECRET=xx
-ARG GOOGLE_APPLICATION_CREDENTIALS=xx
-ARG GS_BUCKET_NAME=xx
-ARG GS_BASE_FOLDER=xx
-ARG CLOUDINARY_BASE_FORLDER=xx
-ARG CLOUDINARY_KEY=xx
-ARG CLOUDINARY_SECRET=xx
-ARG CLOUDINARY_NAME=xx
-
-
-RUN npm run build
+RUN SKIP_ENV_VALIDATION=1 npm run build
 
 # Production image, copy all the files and run next
-FROM node:18-alpine AS runner
+FROM node:18-alpine3.16 AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
