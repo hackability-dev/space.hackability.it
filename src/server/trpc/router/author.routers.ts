@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CreateProjectSchema, ProjectSchema } from "../../../projects/schema";
+import { CreateProjectSchema } from "../../../projects/schema";
 import { EditorDataSchema } from "../../../ui/editor/schema";
 import * as t from "../trpc";
 
