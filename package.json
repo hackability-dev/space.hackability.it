@@ -49,7 +49,7 @@
     "final-form": "^4.20.8",
     "final-form-arrays": "^3.1.0",
     "kannon.js": "^0.3.0",
-    "next": "13.1.2",
+    "next": "13.1.6",
     "next-auth": "^4.18.8",
     "next-mdx-remote": "^4.2.1",
     "next-superjson": "^0.0.4",
