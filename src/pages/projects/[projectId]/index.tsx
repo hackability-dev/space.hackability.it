@@ -69,5 +69,6 @@ const getStaticPropsAfterCheck = async ({
     props: {
       project,
     },
+    revalidate: 60 * 10,
   };
 };

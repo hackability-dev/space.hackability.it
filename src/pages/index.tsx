@@ -63,6 +63,6 @@ export const getStaticProps = async () => {
 
   return {
     props: { projects },
-    revalidate: 60,
+    revalidate: 60 * 10,
   };
 };
