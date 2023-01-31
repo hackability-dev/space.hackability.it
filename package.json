@@ -46,7 +46,7 @@
     "cuid": "^2.1.8",
     "daisyui": "^2.47.0",
     "fast-deep-equal": "^3.1.3",
-    "final-form": "^4.20.8",
+    "final-form": "^4.20.9",
     "final-form-arrays": "^3.1.0",
     "kannon.js": "^0.3.0",
     "next": "13.1.2",
