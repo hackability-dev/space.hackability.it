@@ -58,6 +58,7 @@
     "react-editor-js": "^2.1.0",
     "react-final-form": "^6.5.9",
     "react-final-form-arrays": "^3.1.4",
+    "react-toastify": "^9.1.1",
     "superjson": "1.12.2",
     "telegraf": "^4.11.2",
     "zod": "^3.20.2"

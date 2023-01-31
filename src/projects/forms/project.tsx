@@ -1,8 +1,10 @@
+import clsx from "clsx";
 import deepEqual from "fast-deep-equal";
 import arrayMutators from "final-form-arrays";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Form } from "react-final-form";
 import { FieldArray } from "react-final-form-arrays";
+import { toast } from "react-toastify";
 import type { z } from "zod";
 import { InputField } from "../../forms/input-field";
 import { formatBytes } from "../../utils/bytes";
@@ -30,8 +32,6 @@ export const ProjectForm = ({
   const { mutateAsync: getUploadSignature } =
     trpc.project.generateCloudinaryUploadSignature.useMutation();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const uploadImage = useCallback(
     (file: Blob) => {
       return cloudinaryUploadImage(file, () =>
@@ -44,13 +44,11 @@ export const ProjectForm = ({
   return (
     <Form<z.TypeOf<typeof ProjectSchema>>
       onSubmit={async (value) => {
-        setIsSubmitting(true);
-        try {
-          await onSubmit(value);
-        } catch (e) {
-          console.error(e);
-        }
-        setIsSubmitting(false);
+        toast.promise(onSubmit(value), {
+          pending: "Saving...",
+          success: "Saved ✅",
+          error: "Error ❌",
+        });
       }}
       validate={validateZodSchema(ProjectSchema)}
       initialValues={initialValues}
@@ -186,14 +184,16 @@ export const ProjectForm = ({
             </div>
           </div>
 
-          <div className="pt-5">
+          <div className="ring-t-2 sticky bottom-0 z-10 border-gray-700 bg-white py-2 pt-5">
             <div className="flex justify-end">
               <button
                 type="submit"
                 disabled={!valid || submitting}
-                className="btn-primary btn-sm btn"
+                className={clsx("btn-primary btn-sm btn", {
+                  loading: submitting,
+                })}
               >
-                {submitting ? "Sto salvando..." : "Salva"}
+                Salva
               </button>
             </div>
           </div>
