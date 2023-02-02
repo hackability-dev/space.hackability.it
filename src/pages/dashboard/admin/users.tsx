@@ -1,9 +1,9 @@
-import { User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { DashboardLayout } from "../../../layouts/dashboard";
 import { trpc } from "../../../utils/trpc";
 
 const ProjectsPage = () => {
-  const { data, isLoading, error, refetch } = trpc.admin.getUsers.useQuery({
+  const { data, isLoading, error } = trpc.admin.getUsers.useQuery({
     skip: 0,
     take: 50,
   });
@@ -48,36 +48,20 @@ const UsersList = ({ users }: UsersListProps) => {
       utils.admin.invalidate();
     },
   });
-  const setAdminMut = trpc.admin.setAdmin.useMutation({
-    onSuccess: () => {
-      utils.admin.invalidate();
-    },
-  });
 
   return (
     <div className="w-full overflow-x-auto">
       <table className="table w-full">
         <thead>
           <tr>
-            <th>
-              <label>
-                <input type="checkbox" className="checkbox" />
-              </label>
-            </th>
             <th>Name</th>
             <th>Author</th>
-            <th>Admin</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {users.map((u) => (
             <tr key={u.id}>
-              <th>
-                <label>
-                  <input type="checkbox" className="checkbox" />
-                </label>
-              </th>
               <td>
                 <div className="flex items-center space-x-3">
                   <div className="avatar">
@@ -101,16 +85,6 @@ const UsersList = ({ users }: UsersListProps) => {
                   }
                 />
               </td>
-              <th>
-                <input
-                  type="checkbox"
-                  className="toggle"
-                  checked={u.isAdmin}
-                  onChange={() =>
-                    setAdminMut.mutate({ isAdmin: !u.isAdmin, id: u.id })
-                  }
-                />
-              </th>
             </tr>
           ))}
         </tbody>

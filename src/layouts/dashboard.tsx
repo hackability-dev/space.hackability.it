@@ -4,13 +4,21 @@ import {
   BellIcon,
   FolderIcon,
   HomeIcon,
+  UsersIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useState, type FC, type ReactNode } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useState,
+  type FC,
+  type ReactNode,
+} from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Logo } from "../ui/logo";
@@ -31,28 +39,6 @@ export const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
 
   if (status === "loading") return <div>Loading...</div>;
   if (status === "unauthenticated") return <div>Loading...</div>;
-
-  const user = session!.user!;
-
-  function isCurrentPage(href: string) {
-    return href === router.asPath;
-  }
-
-  const navigation = [...baseNav];
-  if (user.isAuthor) {
-    navigation.push({
-      name: "I miei progetti",
-      href: "/dashboard/projects",
-      icon: FolderIcon,
-    });
-  }
-  if (user.isAdmin) {
-    navigation.push({
-      name: "Admin",
-      href: "/dashboard/admin",
-      icon: BellIcon,
-    });
-  }
 
   return (
     <>
@@ -110,31 +96,7 @@ export const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
                 <Logo className="h-8 w-auto" />
               </div>
               <div className="mt-5 h-0 flex-1 overflow-y-auto">
-                <nav className="space-y-1 px-2">
-                  {navigation.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className={clsx(
-                        isCurrentPage(item.href)
-                          ? "bg-gray-100 text-gray-900"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                        "group flex items-center rounded-md py-2 px-2 text-base font-medium"
-                      )}
-                    >
-                      <item.icon
-                        className={clsx(
-                          isCurrentPage(item.href)
-                            ? "text-gray-500"
-                            : "text-gray-400 group-hover:text-gray-500",
-                          "mr-4 h-6 w-6 flex-shrink-0"
-                        )}
-                        aria-hidden="true"
-                      />
-                      {item.name}
-                    </Link>
-                  ))}
-                </nav>
+                <Navigation />
               </div>
             </div>
           </Transition.Child>
@@ -152,31 +114,7 @@ export const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
             <Logo className="h-8 w-auto" />
           </div>
           <div className="mt-5 flex flex-grow flex-col">
-            <nav className="flex-1 space-y-1 px-2 pb-4">
-              {navigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={clsx(
-                    isCurrentPage(item.href)
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                    "group flex items-center rounded-md py-2 px-2 text-sm font-medium"
-                  )}
-                >
-                  <item.icon
-                    className={clsx(
-                      isCurrentPage(item.href)
-                        ? "text-gray-500"
-                        : "text-gray-400 group-hover:text-gray-500",
-                      "mr-3 h-6 w-6 flex-shrink-0"
-                    )}
-                    aria-hidden="true"
-                  />
-                  {item.name}
-                </a>
-              ))}
-            </nav>
+            <Navigation />
           </div>
         </div>
       </div>
@@ -220,3 +158,110 @@ export const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
     </>
   );
 };
+
+const Navigation = () => {
+  const navigation = useNavigation();
+  const router = useRouter();
+  const isCurrentPath = useCallback(
+    (path: string) => {
+      return path === router.asPath;
+    },
+    [router.asPath]
+  );
+
+  return (
+    <nav className="flex-1 space-y-1 px-2 pb-4">
+      {navigation.map((item, id) => {
+        if (item.type === "link") {
+          return (
+            <Link
+              key={id}
+              href={item.href}
+              className={clsx(
+                isCurrentPath(item.href)
+                  ? "bg-gray-100 text-gray-900"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                "group flex items-center rounded-md py-2 px-2 text-base font-medium"
+              )}
+            >
+              <item.icon
+                className={clsx(
+                  isCurrentPath(item.href)
+                    ? "text-gray-500"
+                    : "text-gray-400 group-hover:text-gray-500",
+                  "mr-4 h-6 w-6 flex-shrink-0"
+                )}
+                aria-hidden="true"
+              />
+              {item.name}
+            </Link>
+          );
+        } else if (item.type === "section") {
+          return (
+            <div key={id} className="ml-3 pt-4 text-sm text-gray-700">
+              <span>{item.name}</span>
+            </div>
+          );
+        }
+      })}
+    </nav>
+  );
+};
+
+function useNavigation(): Nav[] {
+  const { data: session } = useSession();
+  const navigation: Nav[] = [
+    {
+      type: "link",
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: HomeIcon,
+    },
+  ];
+
+  const user = session?.user;
+  if (!user) return navigation;
+
+  if (user.isAuthor) {
+    navigation.push({
+      type: "link",
+      name: "I miei progetti",
+      href: "/dashboard/projects",
+      icon: FolderIcon,
+    });
+  }
+  if (user.isAdmin) {
+    navigation.push({
+      type: "section",
+      name: "Admin",
+    });
+    navigation.push({
+      type: "link",
+      name: "Admin Projects",
+      href: "/dashboard/admin",
+      icon: BellIcon,
+    });
+    navigation.push({
+      type: "link",
+      name: "Admin Users",
+      href: "/dashboard/admin/users",
+      icon: UsersIcon,
+    });
+  }
+
+  return navigation;
+}
+
+interface LinkNav {
+  readonly type: "link";
+  name: string;
+  href: string;
+  icon: (props: React.ComponentProps<"svg">) => JSX.Element;
+}
+
+interface SectionNav {
+  readonly type: "section";
+  name: string;
+}
+
+type Nav = LinkNav | SectionNav;
