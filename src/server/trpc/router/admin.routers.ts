@@ -71,8 +71,8 @@ export const adminRouter = t.router({
   getAllProjects: pAdmin
     .input(
       z.object({
-        skip: z.number().default(0),
-        take: z.number().default(10),
+        skip: z.number(),
+        take: z.number(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -90,6 +90,23 @@ export const adminRouter = t.router({
           createdAt: "desc",
         },
         ...input,
+      });
+    }),
+  setDraft: pAdmin
+    .input(
+      z.object({
+        projectId: z.string(),
+        draft: z.boolean(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.project.update({
+        where: {
+          id: input.projectId,
+        },
+        data: {
+          draft: input.draft,
+        },
       });
     }),
 });
