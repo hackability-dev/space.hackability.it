@@ -27,8 +27,8 @@ const LogoLink = () => {
     <Link href="/" className="flex items-center align-middle">
       <Logo className="mr-4 h-12 w-12" />
       <div className="flex flex-col">
-        <span className="text-sm font-semibold uppercase">Hackability</span>
         <span className="text-sm uppercase text-green-600">Space</span>
+        <span className="text-sm font-semibold uppercase">Hackability</span>
       </div>
     </Link>
   );

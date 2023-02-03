@@ -61,6 +61,14 @@ export const SideNav = () => {
               </Transition.Child>
               <div className="flex flex-shrink-0 items-center px-4">
                 <Logo className="h-8 w-auto" />
+                <div className="ml-2 flex flex-col">
+                  <span className="text-xs uppercase text-green-600">
+                    Space
+                  </span>
+                  <span className="text-xs font-semibold uppercase">
+                    Hackability
+                  </span>
+                </div>
               </div>
               <div className="mt-5 h-0 flex-1 overflow-y-auto">
                 <Navigation />
@@ -79,6 +87,12 @@ export const SideNav = () => {
         <div className="flex flex-grow flex-col overflow-y-auto border-r border-gray-200 bg-white pt-5">
           <div className="flex flex-shrink-0 items-center px-4">
             <Logo className="h-8 w-auto" />
+            <div className="ml-2 flex flex-col">
+              <span className="text-xs uppercase text-green-600">Space</span>
+              <span className="text-xs font-semibold uppercase">
+                Hackability
+              </span>
+            </div>
           </div>
           <div className="mt-5 flex flex-grow flex-col">
             <Navigation />

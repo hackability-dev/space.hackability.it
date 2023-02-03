@@ -1,6 +1,7 @@
 // import { BlogIcon } from "components/icon";
 import { faGoogle } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Logo } from "@ui/logo";
 import type { InferGetServerSidePropsType } from "next";
 import { getProviders, signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -51,25 +52,19 @@ export default function SignIn({ providers }: Props) {
   }
 
   return (
-    <>
-      <div className="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          {/* <BlogIcon className="mx-auto h-14 w-auto text-pink-600" /> */}
-          <img
-            src="/hackability.png"
-            alt="logo"
-            className="mx-auto h-14 w-auto"
-          />
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Login in Space Hackability
-          </h2>
-        </div>
-
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="fixed inset-0 bg-gray-100">
+      <div className="py-12 sm:px-6 lg:px-8">
+        <div className="mx-4 mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             {error && <p className="mb-4 text-center">{errors[error]}</p>}
             <div className="mt-0">
-              <div className="mt-2 grid grid-cols-1 gap-3">
+              <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                <Logo className="mx-auto h-14 w-auto text-pink-600" />
+                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-700">
+                  Space Hackability
+                </h2>
+              </div>
+              <div className="mt-10 grid grid-cols-1 gap-3">
                 <div>
                   <button
                     onClick={() =>
@@ -94,7 +89,7 @@ export default function SignIn({ providers }: Props) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
