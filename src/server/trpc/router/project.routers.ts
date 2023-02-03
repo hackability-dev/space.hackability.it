@@ -57,22 +57,6 @@ export const projectsRouter = t.router({
     .mutation(({ ctx, input }) => {
       return ctx.imageStorage.getSignUrl(input.projectId);
     }),
-  publishProject: pAuthor
-    .input(
-      z.object({
-        ...baseInput,
-      })
-    )
-    .mutation(({ ctx, input }) => {
-      return ctx.prisma.project.update({
-        where: {
-          id: input.projectId,
-        },
-        data: {
-          draft: false,
-        },
-      });
-    }),
   generategsUploadUrl: pAuthor
     .input(
       z.object({

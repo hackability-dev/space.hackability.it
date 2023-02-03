@@ -1,9 +1,9 @@
+"use client";
 import type { User } from "@prisma/client";
-import { DashboardLayout } from "../../../layouts/dashboard";
-import { trpc } from "../../../utils/trpc";
+import { reactApi } from "src/utils/trpc";
 
 const ProjectsPage = () => {
-  const { data, isLoading, error } = trpc.admin.getUsers.useQuery({
+  const { data, isLoading, error } = reactApi.admin.getUsers.useQuery({
     skip: 0,
     take: 50,
   });
@@ -16,7 +16,7 @@ const ProjectsPage = () => {
     return <p>{error.message}</p>;
   }
   return (
-    <DashboardLayout>
+    <>
       <div>
         <div className="">
           <div className="sm:flex sm:items-center">
@@ -28,7 +28,7 @@ const ProjectsPage = () => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </>
   );
 };
 
@@ -42,8 +42,8 @@ interface UsersListProps {
 }
 
 const UsersList = ({ users }: UsersListProps) => {
-  const utils = trpc.useContext();
-  const setAuthorMut = trpc.admin.setAuthor.useMutation({
+  const utils = reactApi.useContext();
+  const setAuthorMut = reactApi.admin.setAuthor.useMutation({
     onSuccess: () => {
       utils.admin.invalidate();
     },

@@ -40,7 +40,7 @@ export const CreateProjectForm = ({
                     {...input}
                     type="text"
                     autoComplete="name"
-                    className="block w-full min-w-0 flex-1 rounded-md border-gray-300  focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    className="input-primary input input-sm w-full"
                   />
                 </div>
                 <div className="flex justify-between">
