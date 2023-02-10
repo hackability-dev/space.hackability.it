@@ -3,7 +3,7 @@ import { EditorDataSchema } from "../ui/editor/schema";
 
 export const StepSchema = z.object({
   title: z.string().max(100),
-  previewImage: z.string(),
+  previewImage: z.string().optional(),
   description: z.string(),
   body: EditorDataSchema,
 });
