@@ -132,7 +132,7 @@ const UploadBox = ({
     return null;
   }
   return (
-    <div className="fixed right-0 bottom-0 m-2 w-96 overflow-hidden rounded bg-white shadow-2xl">
+    <div className="fixed right-0 bottom-0 z-50 m-2 w-96 overflow-hidden rounded bg-white shadow-2xl">
       <div className="flex h-12 items-center justify-between bg-gray-800 p-2 text-sm text-gray-300">
         {toUpload.length === 0 ? (
           <span>Uploaded {entries.length} files...</span>

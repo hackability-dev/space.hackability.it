@@ -13,6 +13,7 @@ export const UploadFilesFields = ({
   onUploadFileCompleted,
 }: UploadFilesFieldsProps) => {
   const { handleUpload } = useUpload();
+  console.log({ handleUpload });
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -74,6 +75,7 @@ export const UploadFilesFields = ({
         <div>
           <p>Trascina i file qui, oppure</p>
           <button
+            type="button"
             onClick={() => inputRef.current?.click()}
             className="link-primary"
           >

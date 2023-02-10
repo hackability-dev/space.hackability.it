@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FC, type ReactNode } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { UploadProvider } from "src/providers/upload";
 import { getBaseUrl, reactApi } from "src/utils/trpc";
 import SuperJSON from "superjson";
 import { DialogContainer } from "./dialog";
@@ -49,7 +50,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <SessionProvider>
       <reactApi.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
-          <DashboardLayout>{children}</DashboardLayout>
+          <UploadProvider>
+            <DashboardLayout>{children}</DashboardLayout>
+          </UploadProvider>
         </QueryClientProvider>
       </reactApi.Provider>
     </SessionProvider>
