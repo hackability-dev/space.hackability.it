@@ -1,3 +1,4 @@
+import { ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { useCallback } from "react";
 import { formatBytes } from "../../utils/bytes";
 import { trpc } from "../../utils/trpc";
@@ -76,10 +77,11 @@ const ProjectFilesTable = ({
               <td>{file.type}</td>
               <td className="flex justify-end">
                 <button
-                  className="link-primary link"
+                  type="button"
+                  className="btn-ghost btn-sm btn-square btn-circle btn"
                   onClick={() => downloadFile(projectId, file.filename)}
                 >
-                  download
+                  <ArrowDownTrayIcon className="h-5 w-5" />
                 </button>
               </td>
             </tr>

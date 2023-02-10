@@ -1,3 +1,4 @@
+import { ArrowDownTrayIcon, TrashIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import deepEqual from "fast-deep-equal";
 import arrayMutators from "final-form-arrays";
@@ -309,16 +310,18 @@ const ProjectsFileList = ({
               <td>{file.filename.split(".").pop()}</td>
               <td className="flex justify-end">
                 <button
-                  className="link-primary link"
+                  type="button"
+                  className="btn-ghost btn-sm btn-square btn-circle btn"
                   onClick={() => downloadFile(projectId, file.filename)}
                 >
-                  download
+                  <ArrowDownTrayIcon className="h-5 w-5" />
                 </button>
                 <button
-                  className="link ml-2 text-red-600"
+                  type="button"
+                  className="btn-ghost btn-sm btn-square btn-circle btn"
                   onClick={() => deleteFile(projectId, file.filename)}
                 >
-                  delete
+                  <TrashIcon className="h-5 w-5" />
                 </button>
               </td>
             </tr>
@@ -371,6 +374,12 @@ const StepForm = ({ name, uploadImage, remove, index }: StepFormProps) => {
       />
 
       <div className="mt-4">
+        <h3 className="text-lg font-medium leading-6 text-gray-900">
+          Descrizione dello step
+        </h3>
+        <p className="mt-1 mb-4 text-sm text-gray-500">
+          Descrivi dettagliamente come completare lo step
+        </p>
         <EditorField name={`${name}.body`} uploadImage={uploadImage} />
       </div>
       <div className="mt-2 flex justify-end">
