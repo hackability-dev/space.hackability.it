@@ -73,9 +73,11 @@ export const adminRouter = t.router({
       z.object({
         skip: z.number(),
         take: z.number(),
+        orderBy: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
+      const { orderBy, ...rest } = input;
       return ctx.prisma.project.findMany({
         select: {
           id: true,
@@ -86,10 +88,8 @@ export const adminRouter = t.router({
           draft: true,
           createdAt: true,
         },
-        orderBy: {
-          createdAt: "desc",
-        },
-        ...input,
+        orderBy: orderBy === "name" ? { name: "asc" } : { createdAt: "desc" },
+        ...rest,
       });
     }),
   setDraft: pAdmin
@@ -106,6 +106,19 @@ export const adminRouter = t.router({
         },
         data: {
           draft: input.draft,
+        },
+      });
+    }),
+  deleteProject: pAdmin
+    .input(
+      z.object({
+        projectId: z.string(),
+      })
+    )
+    .mutation(({ ctx, input }) => {
+      return ctx.prisma.project.delete({
+        where: {
+          id: input.projectId,
         },
       });
     }),

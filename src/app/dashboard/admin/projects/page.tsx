@@ -1,11 +1,23 @@
 "use client";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { Dialog } from "@headlessui/react";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import type { Project } from "@prisma/client";
 import { reactApi } from "src/utils/trpc";
+import { useDialogStore } from "../../dialog.store";
+import { z } from "zod";
+import { ZodForm } from "src/projects/forms/zod-form";
+import { FORM_ERROR } from "final-form";
+import { TextField } from "src/projects/forms/text-field";
+import clsx from "clsx";
+import { SelectPicker } from "src/projects/forms/select-field";
+import { useState } from "react";
 
 const ProjectsPage = () => {
+  const [order, setOrder] = useState<string>("name");
   const { data, isLoading, error } = reactApi.admin.getAllProjects.useQuery({
     skip: 0,
     take: 50,
+    orderBy: order,
   });
 
   if (isLoading) {
@@ -27,6 +39,22 @@ const ProjectsPage = () => {
             <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none"></div>
           </div>
         </div>
+        <div className="mt-10 flex items-center space-x-2">
+          <span>Order By</span>
+          <div className="w-80">
+            <SelectPicker
+              setValue={(v) => {
+                setOrder(v);
+              }}
+              value={order}
+              options={[
+                { label: "Name", value: "name" },
+                { label: "Created At", value: "created_at" },
+              ]}
+            />
+          </div>
+        </div>
+
         <ProjectsList projects={data!} />
       </div>
     </>
@@ -54,6 +82,7 @@ const ProjectsList = ({ projects }: ProjectsListProps) => {
       utils.admin.invalidate();
     },
   });
+  const deleteProject = useDeleteProject();
 
   return (
     <div className="mt-8 flex flex-col">
@@ -106,17 +135,25 @@ const ProjectsList = ({ projects }: ProjectsListProps) => {
                     <td className="relative space-x-2 whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                       <div className="flex content-center justify-end">
                         {project.draft ? (
-                          <button
-                            className="btn-ghost btn-sm btn"
-                            onClick={() =>
-                              publishMut.mutate({
-                                projectId: project.id,
-                                draft: false,
-                              })
-                            }
-                          >
-                            publish
-                          </button>
+                          <>
+                            <button
+                              className="btn-ghost btn-sm btn"
+                              onClick={() =>
+                                publishMut.mutate({
+                                  projectId: project.id,
+                                  draft: false,
+                                })
+                              }
+                            >
+                              publish
+                            </button>
+                            <button
+                              className="btn-ghost btn-sm btn-circle btn"
+                              onClick={() => deleteProject(project)}
+                            >
+                              <TrashIcon className="w-4" />
+                            </button>
+                          </>
                         ) : (
                           <button
                             className="btn-ghost btn-sm btn"
@@ -162,3 +199,75 @@ const ProjectStatus = ({ draft }: { draft: boolean }) => {
     <span className={`${classes} bg-green-100 text-green-800`}>Published</span>
   );
 };
+
+const useDeleteProject = () => {
+  const createDialog = useDialogStore((s) => s.setDialog);
+  return (project: Pick<Project, "id" | "name">) => {
+    createDialog(<DeleteProjectDialog project={project} />);
+  };
+};
+
+function DeleteProjectDialog({
+  project,
+}: {
+  project: Pick<Project, "id" | "name">;
+}) {
+  const close = useDialogStore((s) => s.closeDialog);
+  const utils = reactApi.useContext();
+
+  const deleteProject = reactApi.admin.deleteProject.useMutation({
+    onSuccess: async () => {
+      await utils.admin.invalidate();
+      close();
+    },
+  });
+
+  const DeleteSchema = z.object({
+    check: z.literal("DELETE"),
+  });
+
+  return (
+    <>
+      <Dialog.Title className="text-lg font-semibold text-gray-700">
+        Delete Project
+      </Dialog.Title>
+      <Dialog.Description>
+        Are you sure you want to delete <strong>{project.name}</strong>?
+      </Dialog.Description>
+      <div className="mt-10">
+        <ZodForm
+          schema={DeleteSchema}
+          onSubmit={async () => {
+            await deleteProject.mutateAsync({
+              projectId: project.id,
+            });
+          }}
+        >
+          {({ handleSubmit, submitting, invalid, submitErrors }) => (
+            <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+              <TextField label={`Type \`DELETE\` to procede`} name="check" />
+              <div>
+                {submitErrors?.[FORM_ERROR] && (
+                  <span className="text-sm text-red-500">
+                    {submitErrors[FORM_ERROR]}
+                  </span>
+                )}
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={invalid || submitting}
+                  className={clsx("btn-error btn-sm btn", {
+                    loading: submitting,
+                  })}
+                >
+                  Delete
+                </button>
+              </div>
+            </form>
+          )}
+        </ZodForm>
+      </div>
+    </>
+  );
+}

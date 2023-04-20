@@ -59,7 +59,7 @@ export default function SignIn({ providers }: Props) {
             {error && <p className="mb-4 text-center">{errors[error]}</p>}
             <div className="mt-0">
               <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <Logo className="mx-auto h-14 w-auto text-pink-600" />
+                <Logo className="mx-auto h-14 w-auto text-green-600" />
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-700">
                   Space Hackability
                 </h2>
