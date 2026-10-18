@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+      NEXTAUTH_SECRET: ci
+      NEXTAUTH_URL: http://localhost:3000
+      GOOGLE_CLIENT_ID: ci
+      GOOGLE_CLIENT_SECRET: ci
+      GOOGLE_APPLICATION_CREDENTIALS: ci
+      GS_BUCKET_NAME: ci
+      GS_BASE_FOLDER: ci
+      CLOUDINARY_BASE_FORLDER: ci
+      CLOUDINARY_KEY: ci
+      CLOUDINARY_SECRET: ci
+      CLOUDINARY_NAME: ci
+      KANNON_KEY: ci
+      KANNON_DOMAIN: ci
+      KANNON_EMAIL: ci@hackability.it
+      KANNON_ALIAS: CI
+      KANNON_HOST: localhost:443
+      TELEGRAM_ADMIN_CHAT_ID: "0"
+      TELEGRAM_TOKEN: ci
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jdx/mise-action@v5
+
+      - uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+
+      - run: npm ci
+
+      - run: mise run check
+
+      # The homepage is statically generated from the database at build time.
+      - run: mise run db:push
+
+      - run: mise run build
