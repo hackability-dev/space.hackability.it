@@ -2,6 +2,9 @@
   "name": "space-hackability-t3",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "SKIP_ENV_VALIDATION=1 next build",
     "dev": "next dev",
