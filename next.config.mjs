@@ -13,9 +13,6 @@ const config = {
   reactStrictMode: true,
   swcMinify: true,
   output: "standalone",
-  experimental: {
-    appDir: true,
-  },
 };
 
 export default withSuperjson()(config);

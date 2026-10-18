@@ -69,21 +69,30 @@ This platform, **Space Hackability**, is the digital hub for documenting, sharin
 
 ### Local Setup
 
+Requires Node 22. With [mise](https://mise.jdx.dev) the toolchain and tasks are defined in `mise.toml`:
+
 ```bash
-npm install
-npm run dev
+mise install          # installs Node 22
+cp .env.example .env  # then fill in the secrets
+mise run install
+mise run db:up        # local Postgres on port 5433 (needs Docker)
+mise run db:push
+mise run dev
 ```
 
 - Visit [localhost:3000](http://localhost:3000)
-- Use `.env.example` as a template for environment variables
+- Without mise, use Node 22 (`.nvmrc`) and the equivalent `npm` / `npx prisma` commands
 
 ### Useful Commands
 
-- `npm run dev` — Start development server
-- `npm run build` — Production build
-- `npm run lint` — Lint code
-- `npx prisma studio` — DB browser
-- `npx prisma db seed` — Seed database
+Run `mise tasks` for the full list.
+
+- `mise run dev` — Start development server
+- `mise run build` — Production build
+- `mise run check` — Lint, typecheck and tests
+- `mise run db:up` / `mise run db:down` — Start / stop the local Postgres
+- `mise run db:studio` — DB browser
+- `mise run db:seed` — Seed database
 
 ### Project Structure
 

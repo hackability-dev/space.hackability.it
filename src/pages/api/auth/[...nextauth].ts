@@ -15,7 +15,7 @@ const kannon = new KannonCli(
     email: env.KANNON_EMAIL,
   },
   {
-    host: env.KANNON_HOST,
+    endpoint: `https://${env.KANNON_HOST}`,
   }
 );
 const sender = new EmailSender(kannon);

@@ -1,0 +1,55 @@
+[tools]
+node = "22"
+
+[env]
+_.path = ["./node_modules/.bin"]
+
+[tasks.install]
+description = "Install dependencies"
+run = "npm install"
+
+[tasks.dev]
+description = "Start the development server on localhost:3000"
+run = "next dev"
+
+[tasks.build]
+description = "Production build"
+run = "SKIP_ENV_VALIDATION=1 next build"
+
+[tasks.lint]
+description = "Run ESLint"
+run = "SKIP_ENV_VALIDATION=1 next lint"
+
+[tasks.typecheck]
+description = "Type-check the project"
+run = "tsc --noEmit"
+
+[tasks.test]
+description = "Run unit tests"
+run = "vitest run"
+
+[tasks.check]
+description = "Run lint, typecheck and tests"
+depends = ["lint", "typecheck", "test"]
+
+[tasks."db:up"]
+description = "Start a local Postgres on port 5433 (DATABASE_URL=postgresql://postgres:postgres@localhost:5433/postgres)"
+run = """
+docker run -d --name space-hackability-db -e POSTGRES_PASSWORD=postgres -p 5433:5432 -v space-hackability-db:/var/lib/postgresql/data postgres:15-alpine
+"""
+
+[tasks."db:down"]
+description = "Stop and remove the local Postgres container (data is kept in the volume)"
+run = "docker rm -f space-hackability-db"
+
+[tasks."db:push"]
+description = "Sync the Prisma schema to the database"
+run = "prisma db push"
+
+[tasks."db:seed"]
+description = "Seed the database"
+run = "prisma db seed"
+
+[tasks."db:studio"]
+description = "Open Prisma Studio"
+run = "prisma studio"
