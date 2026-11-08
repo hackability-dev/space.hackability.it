@@ -1,4 +1,7 @@
-import { type InferGetStaticPropsType } from "next";
+import {
+  type GetServerSidePropsContext,
+  type InferGetServerSidePropsType,
+} from "next";
 import Link from "next/link";
 import { ProjectPreview } from "../projects/ui/preview";
 import { prisma } from "../server/db/client";
@@ -6,7 +9,9 @@ import { Footer } from "../ui/footer";
 import { Nav } from "../ui/nav";
 import { SEO } from "../ui/seo";
 
-const HomePage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
+const HomePage = (
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) => {
   return (
     <>
       <SEO />
@@ -19,7 +24,9 @@ const HomePage = (props: InferGetStaticPropsType<typeof getStaticProps>) => {
 
 export default HomePage;
 
-const Main = ({ projects }: InferGetStaticPropsType<typeof getStaticProps>) => {
+const Main = ({
+  projects,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const totalProjects = projects.length;
   const recentProjects = projects.slice(0, 3);
 
@@ -234,7 +241,18 @@ const Main = ({ projects }: InferGetStaticPropsType<typeof getStaticProps>) => {
   );
 };
 
-export const getStaticProps = async () => {
+const PROJECTS_CACHE_SECONDS = 60 * 10;
+
+// Rendered per request (not at build time) so the image build needs no database.
+// The header mirrors what the former 10-minute ISR page sent to shared caches.
+export const getServerSideProps = async ({
+  res,
+}: GetServerSidePropsContext) => {
+  res.setHeader(
+    "Cache-Control",
+    `s-maxage=${PROJECTS_CACHE_SECONDS}, stale-while-revalidate`
+  );
+
   const projects = await prisma.project.findMany({
     orderBy: {
       updatedAt: "desc",
@@ -254,6 +272,5 @@ export const getStaticProps = async () => {
 
   return {
     props: { projects },
-    revalidate: 60 * 10,
   };
 };

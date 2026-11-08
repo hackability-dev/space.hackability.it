@@ -21,33 +21,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
-ARG DATABASE_URL
-ARG NEXTAUTH_SECRET=xx
-ARG NEXTAUTH_URL=http://localhost:3000
-ARG GOOGLE_CLIENT_ID=xx
-ARG GOOGLE_CLIENT_SECRET=xx
-ARG GOOGLE_APPLICATION_CREDENTIALS=xx
-ARG GS_BUCKET_NAME=xx
-ARG GS_BASE_FOLDER=xx
-ARG CLOUDINARY_BASE_FORLDER=xx
-ARG CLOUDINARY_KEY=xx
-ARG CLOUDINARY_SECRET=xx
-ARG CLOUDINARY_NAME=xx
-
-ARG KANNON_KEY=xxxx
-ARG KANNON_DOMAIN=xxx
-ARG KANNON_EMAIL=email@hackability.it
-ARG KANNON_ALIAS=Sender
-ARG KANNON_HOST=xxx.xxx.xx:443
-ARG TELEGRAM_ADMIN_CHAT_ID=xxxx
-ARG TELEGRAM_TOKEN=xxxx
-
-RUN SKIP_ENV_VALIDATION=1 npm run build
+# The build is hermetic: it runs without network access, so no database or
+# other service can be reached. DB-backed pages render at request time, and
+# server secrets (DATABASE_URL, OAuth, Cloudinary, Kannon, Telegram, ...) are
+# only provided to the running container.
+RUN --network=none SKIP_ENV_VALIDATION=1 npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
