@@ -4,6 +4,7 @@ import {
 } from "next";
 import Link from "next/link";
 import { ProjectPreview } from "../projects/ui/preview";
+import { cacheWithTtl } from "../server/cache-with-ttl";
 import { prisma } from "../server/db/client";
 import { Footer } from "../ui/footer";
 import { Nav } from "../ui/nav";
@@ -243,8 +244,28 @@ const Main = ({
 
 const PROJECTS_CACHE_SECONDS = 60 * 10;
 
+const getPublishedProjects = cacheWithTtl(
+  () =>
+    prisma.project.findMany({
+      orderBy: {
+        updatedAt: "desc",
+      },
+      where: {
+        draft: false,
+      },
+      skip: 0,
+      take: 180,
+      select: {
+        id: true,
+        name: true,
+        previewImage: true,
+        description: true,
+      },
+    }),
+  PROJECTS_CACHE_SECONDS * 1000
+);
+
 // Rendered per request (not at build time) so the image build needs no database.
-// The header mirrors what the former 10-minute ISR page sent to shared caches.
 export const getServerSideProps = async ({
   res,
 }: GetServerSidePropsContext) => {
@@ -253,24 +274,7 @@ export const getServerSideProps = async ({
     `s-maxage=${PROJECTS_CACHE_SECONDS}, stale-while-revalidate`
   );
 
-  const projects = await prisma.project.findMany({
-    orderBy: {
-      updatedAt: "desc",
-    },
-    where: {
-      draft: false,
-    },
-    skip: 0,
-    take: 180,
-    select: {
-      id: true,
-      name: true,
-      previewImage: true,
-      description: true,
-    },
-  });
-
   return {
-    props: { projects },
+    props: { projects: await getPublishedProjects() },
   };
 };
