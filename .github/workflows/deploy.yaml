@@ -16,9 +16,9 @@ jobs:
       - name: Get Vars
         id: get_vars
         run: |
-          echo "::set-output name=ts::$(date +%s)"
-          echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-          echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
+          echo "ts=$(date +%s)" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "branch=$(git rev-parse --abbrev-ref HEAD)" >> "$GITHUB_OUTPUT"
       - name: Docker meta
         id: docker_meta
         uses: crazy-max/ghaction-docker-meta@v1
@@ -42,19 +42,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          network: host
           tags: ${{ steps.docker_meta.outputs.tags }}
-          build-args: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-    services:
-      db:
-        image: ghcr.io/ludusrusso/kubectl-with-env-config:958062ab64ccfa815aa2f931c03f72a2a670232a
-        env:
-          KUBECONFIG: "${{ secrets.KUBECONFIG }}"
-          NAMESPACE: "${{ secrets.NAMESPACE }}"
-          POD: "${{ secrets.POD }}"
-          PORTS: 5432:5432
-        ports:
-          - 5432:5432
