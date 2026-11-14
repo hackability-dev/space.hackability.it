@@ -34,7 +34,7 @@ export const serverSchema = z.object({
   KANNON_DOMAIN: z.string(),
   KANNON_EMAIL: z.string().email(),
   KANNON_ALIAS: z.string(),
-  KANNON_HOST: z.string(),
+  KANNON_REST_API_URL: z.string().url().default("https://api.kannon.email"),
 
   // telegram
   TELEGRAM_TOKEN: z.string(),
@@ -76,7 +76,7 @@ export const clientEnv = {
   KANNON_DOMAIN: process.env.KANNON_DOMAIN,
   KANNON_EMAIL: process.env.KANNON_EMAIL,
   KANNON_ALIAS: process.env.KANNON_ALIAS,
-  KANNON_HOST: process.env.KANNON_HOST,
+  KANNON_REST_API_URL: process.env.KANNON_REST_API_URL,
 
   // telegram
   TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN,

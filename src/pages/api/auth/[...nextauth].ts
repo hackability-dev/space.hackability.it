@@ -3,21 +3,10 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "../../../env/server.mjs";
 import { prisma } from "../../../server/db/client";
-import { EmailSender } from "../../../server/kannon";
-import { KannonCli } from "kannon.js";
+import { createKannonClient, EmailSender } from "../../../server/kannon";
 import { TelegramNotifier } from "../../../server/bot";
 
-const kannon = new KannonCli(
-  env.KANNON_DOMAIN,
-  env.KANNON_KEY,
-  {
-    alias: env.KANNON_ALIAS,
-    email: env.KANNON_EMAIL,
-  },
-  {
-    endpoint: `https://${env.KANNON_HOST}`,
-  }
-);
+const kannon = createKannonClient(env);
 const sender = new EmailSender(kannon);
 
 export const telegramNotifier = new TelegramNotifier(
