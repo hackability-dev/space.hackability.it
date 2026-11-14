@@ -168,3 +168,15 @@ Thank you for helping us make technology more accessible for everyone! 🚀
 <div align="center">
   <sub>With ❤️ by the Hackability community — Empowering inclusive innovation</sub>
 </div>
+
+### Welcome emails
+
+Use Node.js 22 or newer for kannon.js 2.x. Welcome emails use the Kannon REST
+client with the existing domain, key, sender, template, subject, and recipient fields.
+`KANNON_REST_API_URL` is an optional server-side base URL, defaulting to
+`https://api.kannon.email` (omit `/v1`). The client posts to
+`https://api.kannon.email/v1/domains/{KANNON_DOMAIN}/batches`.
+The legacy `KANNON_HOST` gRPC setting is ignored, so existing production secrets
+can remain in place; no new environment variable is required for the hosted API.
+For self-hosted REST, set `KANNON_REST_API_URL` to its HTTP(S) origin.
+Run `npx vitest run src/server/kannon.test.ts` for mocked HTTP coverage; it sends no emails.
